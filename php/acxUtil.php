@@ -560,7 +560,7 @@ class acxUtil
 		{
 			echo '<p>';
 			$plugin_data = get_plugin_data(ACX_PLUGIN_DIR.ACX_PLUGIN_NAME.'.php');
-			printf('%1$s plugin | ' . __('Version') . ' <a href="http://wordpress.org/extend/plugins/wsd-security/changelog/"
+			printf('%1$s plugin | ' . __('Version') . ' <a href="http://wordpress.org/extend/plugins/websitedefender-wordpress-security/changelog/"
 															target="_blank"
 															title="'.__('History').'">%2$s</a> | '.__('Author').' %3$s<br />'
 					, $plugin_data['Title'], $plugin_data['Version'], $plugin_data['Author']);

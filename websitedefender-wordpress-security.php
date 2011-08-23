@@ -2,8 +2,8 @@
 /*
     Plugin Name: WebsiteDefender WordPress Security
     Plugin URI: http://www.websitedefender.com/websitedefender-wordpress-security
-    Description: WebsiteDefender WordPress security plug-in scans your WordPress installation for security vulnerabilities and suggests corrective actions for: Passwords, File permissions, Database security, Version hiding, WordPress admin protection/security and much more!
-    Version: 0.1
+    Description: WebsiteDefender WordPress security plug-in helps you secure your WordPress installation and suggests corrective actions for: Passwords, File permissions, Database security, Version hiding, WordPress admin protection/security and much more!
+    Version: 0.3
     Author: WebsiteDefender
     Author URI: http://websitedefender.com/
     License: GPLv2 or later

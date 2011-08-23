@@ -3,16 +3,16 @@ Contributors: WebsiteDefender
 Tags: security, securityscan, chmod, permissions, admin, administration, authentication, database, dashboard, post, notification, password, plugin, posts, wsd, websitedefender, plugins, private, protection, tracking, wordpress
 Requires at least: 2.8
 Tested up to: 3.2.1
-Stable tag: 0.2
+Stable tag: trunk
 License: GPLv2 or later
 
 
-Scans your WordPress installation and provides detailed reporting on discovered vulnerabilities and how to fix them.
+Helps you secure your WordPress installation and provides detailed reporting on discovered vulnerabilities and how to fix them.
 
 
 == Description ==
 
-The WebsiteDefender WordPress Security plugin is a free and comprehensive security tool that scans your WordPress installation for vulnerabilities, and suggests corrective measures for: strengthening passwords, securing file permissions, security the database, version hiding, WordPress admin protection and lots more.
+The WebsiteDefender WordPress Security plugin is a free and comprehensive security tool that helps you secure your WordPress installation and suggests corrective measures for: strengthening passwords, securing file permissions, security of the database, version hiding, WordPress admin protection and lots more.
 
 
 = Key security features: =
@@ -78,6 +78,12 @@ solved by opening securityscan.php and commenting out the line
 For more information on the WebsiteDefender WordPress Security plug-in and other WordPress security news, visit the <a href="http://www.websitedefender.com/blog" target="_blank">WebsiteDefender Blog</a> and join our <a href="http://www.facebook.com/websitedefender" target="_blank">Facebook</a> page. Post any questions or feedback on the <a href="http://www.websitedefender.com/forums/wp-security-scan-plugin/" target="_blank">WebsiteDefender WordPress Security plug-in forum</a>.
 
 == Changelog ==
+
+= 0.3 =
+* Update: Minor updates
+
+= 0.2 =
+* Update: Minor updates
 
 = 0.1 = 
 * Feature: Removes error-information on login-page
