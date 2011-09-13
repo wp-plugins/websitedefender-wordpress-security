@@ -201,17 +201,38 @@ class acxUtil
 
 		$rightsenough = $rightstoomuch = false;
 		$data = array(
-			'rightsEnough' => $rightsenough,
-			'rightsTooMuch' => $rightstoomuch
+			'rightsEnough' => false,
+			'rightsTooMuch' => false
 		);
 
-//@ $rev #1 07/26/2011 {cos} 
-		$rights = $wpdb->get_results("SHOW GRANTS FOR '".DB_USER."'@'".DB_HOST."'", ARRAY_N);
+//@ $rev #1 07/26/2011 {c} $
+//@ $rev #2 09/12/2011 {c} $
 
-		if (empty($rights)) {
-			return $data;
-		}
+		$rights = $wpdb->get_results("SHOW PRIVILEGES", ARRAY_N);
+        //$wpdb->get_results("SHOW GRANTS FOR '".DB_USER."'@'".DB_HOST."'", ARRAY_N);
 
+		if (empty($rights)) { return $data; }
+
+        $_tooManyRights = array('CREATE','DELETE','DROP','EVENT','EXECUTE','FILE','GRANT','PROCESS','RELOAD','SHUTDOWN','SUPER');
+        $numRights = 0;
+        foreach ($rights as $right)
+        {
+            if (! empty($right[0]))
+            {
+                $_right = strtoupper($right[0]);
+                if ('ALTER' == $_right) {
+                    $rightsenough = true;
+                }
+                if (in_array($_right, $tooManyRights)) {
+                    $numRights += 1;
+                }
+            }
+        }
+        if ($numRights >= 5) {
+            $rightstoomuch = true;
+        }
+        
+/*
 		$to = preg_quote("TO '".DB_USER."'@'".DB_HOST."'");
 
         foreach ($rights as $right)
@@ -232,7 +253,7 @@ class acxUtil
                 }
             }
         }
-		
+*/		
 		return array(
 			'rightsEnough' => $rightsenough,
 			'rightsTooMuch' => $rightstoomuch,
