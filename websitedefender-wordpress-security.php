@@ -3,10 +3,12 @@
     Plugin Name: WebsiteDefender WordPress Security
     Plugin URI: http://www.websitedefender.com/websitedefender-wordpress-security
     Description: WebsiteDefender WordPress security plug-in helps you secure your WordPress installation and suggests corrective actions for: Passwords, File permissions, Database security, Version hiding, WordPress admin protection/security and much more!
-    Version: 0.3
+    Version: 0.4
     Author: WebsiteDefender
     Author URI: http://websitedefender.com/
     License: GPLv2 or later
+    Text Domain: WSDWP_SECURITY
+    Domain Path: /languages
 */
 
 /*  Copyright 2011  WebsiteDefender.com  (email : support@websitedefender.com)
@@ -37,7 +39,7 @@ define('ACX_PLUGIN_NICE_NAME', 'WebsiteDefender WordPress Security');
 
 
 //!! So we can use the "user" related functions
-require_once(ABSPATH.'wp-includes/pluggable.php');
+@require_once(ABSPATH.'wp-includes/pluggable.php');
 
 /*
  * LOAD REQUIRED FILES

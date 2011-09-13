@@ -15,7 +15,7 @@ if (!ACX_SHOULD_LOAD) { exit; }
 
 <form action="" method="post" id="wsd_target_id_form" name="wsd_target_id_form">
 	<label for="targetid"><?php echo __('Target ID');?>:</label>
-	<input type="text" name="targetid" id="targetid"/>
+	<input type="text" name="targetid" id="targetid" value="<?php echo get_option('WSD-TARGETID');?>"/>
 	<input type="submit" name="wsd_update_target_id" value="<?php echo __('Update');?>" />
 </form>
 <script type="text/javascript">

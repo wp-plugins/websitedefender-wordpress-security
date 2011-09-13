@@ -632,7 +632,7 @@ class acxWSD
       #echo "render_target_status<br>";
       $user = get_option('WSD-USER');
       if(!is_string($user)||($user == "") ) { $user = get_option("admin_email"); } 
-      $status = $this->jsonRPC(self::WSD_URL_RPC, "cPlugin.status", array($user, get_option('WSD-TARGETID')));
+      $status = $this->jsonRPC(self::WSD_URL_RPC, "cPlugin.status", array($user, get_option('WSD-TARGETID'), $this->site_url()));
       if($status === null)
       {
         $this->render_error();

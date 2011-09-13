@@ -1,7 +1,7 @@
 === WebsiteDefender WordPress Security ===
 Contributors: WebsiteDefender
 Tags: security, securityscan, chmod, permissions, admin, administration, authentication, database, dashboard, post, notification, password, plugin, posts, wsd, websitedefender, plugins, private, protection, tracking, wordpress
-Requires at least: 2.8
+Requires at least: 3.0
 Tested up to: 3.2.1
 Stable tag: trunk
 License: GPLv2 or later
@@ -40,7 +40,7 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 
 == Requirements ==
-* WordPress version 2.8 and higher (tested at 3.1)
+* WordPress version 3.0 and higher (tested at 3.1)
 * PHP5 (tested with PHP Interpreter >= 5.2.9)
 
 
@@ -78,6 +78,11 @@ solved by opening securityscan.php and commenting out the line
 For more information on the WebsiteDefender WordPress Security plug-in and other WordPress security news, visit the <a href="http://www.websitedefender.com/blog" target="_blank">WebsiteDefender Blog</a> and join our <a href="http://www.facebook.com/websitedefender" target="_blank">Facebook</a> page. Post any questions or feedback on the <a href="http://www.websitedefender.com/forums/wp-security-scan-plugin/" target="_blank">WebsiteDefender WordPress Security plug-in forum</a>.
 
 == Changelog ==
+
+= 0.4 =
+* BugFix: The bug reported about ALTER rights retrieval has been addressed
+* Update: Code cleanup
+* Update: Minor internal updates
 
 = 0.3 =
 * Update: Minor updates
