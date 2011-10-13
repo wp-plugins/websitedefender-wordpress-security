@@ -6,6 +6,8 @@
  * $rev #1 07/16/2011 {c}$
  * $rev #2 07/21/2011 {c}$
  * $rev #3 08/23/2011 {c}$
+ * $rev #4 09/20/2011 {c}$
+ * $rev #5 09/30/2011 {c}$
  */
 class acxWSD
 {
@@ -46,7 +48,7 @@ class acxWSD
         $result = parse_url($url);
         if($result === null) { return array("error"=> __("Invalid URL.")); }
         $result["error"] = null;
-        if(!array_key_exists("port", $result)) {$result["port"] = 80;}
+        if(!array_key_exists("port", $result)) {$result["port"] = 21;}
         if(!array_key_exists("scheme", $result)) {$result["scheme"] = "http";}
         if(!array_key_exists("query", $result)) {$result["query"] = "";}
         else {$result["query"] = "?" . $result["query"];}
@@ -113,7 +115,7 @@ class acxWSD
       {
         if($scheme == "ssl://")
         {
-          $fp = fsockopen($url["host"], 80 , $errno, $errstr, $timeout);
+          $fp = fsockopen($url["host"], 21 , $errno, $errstr, $timeout);
           if (!$fp)
           {
             error_reporting($e);
@@ -459,7 +461,12 @@ class acxWSD
     function process_add_target_id()
     {
 		//echo "process_add_target_id<br>";
-		add_option('WSD-TARGETID', $_POST['targetid']);
+        if(! empty($_POST['targetid'])){
+            add_option('WSD-TARGETID', $_POST['targetid']);
+        }
+        if( ! empty($_POST['user_email'])){
+            add_option('WSD-USER', $_POST['user_email']);
+        }
 		$this->render_target_status();
     }
 
@@ -642,13 +649,18 @@ class acxWSD
       {
         //our target is not valid anymore
         delete_option('WSD-TARGETID');
+        
+        // Display the add target id form
+        // update: $rev 4
+        $this->render_add_target_id();
+        $this->render_error('Invalid Target ID!');
         return false;
       }
 
       echo '<p class="wsd-inside">';
-        echo __('Thank you for registering with WebsiteDefender. 
-                    Please navigate to the <a target="_blank" href="https://dashboard.websitedefender.com/">WebsiteDefender dashboard</a> 
-                    to monitor your site\'s security.');
+        echo sprintf(__('Thank you for registering with WebsiteDefender. 
+                    Please navigate to the <a target="_blank" href="%s">WebsiteDefender dashboard</a> 
+                    to monitor your site\'s security.'),self::WSD_URL);
       echo "</p>";
 
       $enabled = array_key_exists('enabled', $status) ? $status['enabled'] : null;
@@ -731,7 +743,9 @@ class acxWSD
       $hello = $this->jsonRPC(self::WSD_URL_RPC, "cPlugin.hello", $this->site_url());
       if($hello == null)
       {
-        $this->render_error();
+        // update: $rev 4
+        $this->render_new_user();
+        
         return;
       }
 

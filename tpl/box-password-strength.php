@@ -16,7 +16,8 @@ if (!ACX_SHOULD_LOAD) { exit; }
 <script src="<?php echo ACX_PLUGIN_PATH.'res/js/acx-pwd-tool.js';?>" type="text/javascript"></script>
 
 <div class="acx-section-box">
-    <table id="wsd_pwdtool">
+<span><?php echo __("Start typing a password and the Password Generator will indicate if it is a strong password or not.");?></span>
+<table id="wsd_pwdtool">
         <tr valign="top">
             <td>
                 <form name="commandForm">
@@ -37,6 +38,5 @@ if (!ACX_SHOULD_LOAD) { exit; }
 
     <br/>
     <br/><hr class="line" size="2" color="#EBEBEB" />
-    <br /><strong>Strong Password Generator</strong>
-    <br/><span>Strong password example:</span> <span style="color:#f00;"><?php echo make_password(15);?></span>
+    <br/><span>Example of a strong password:</span> <span style="color:#f00;"><?php echo make_password(15);?></span>
 </div>

@@ -79,6 +79,12 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 == Changelog ==
 
+= 0.5 =
+* New feature: A System Information Report box provides a summary of your web server's components
+* New setting: Option to open / close WebsiteDefender dashboard widget
+* Update: Internal code updates
+* Update: More help resource links
+
 = 0.4 =
 * BugFix: The bug reported about ALTER rights retrieval has been addressed
 * Update: Code cleanup
@@ -90,7 +96,7 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 = 0.2 =
 * Update: Minor updates
 
-= 0.1 = 
+= 0.1 =
 * Feature: Removes error-information on login-page
 * Feature: Adds index.php to the wp-content, wp-content/plugins, wp-content/themes and wp-content/uploads directories to prevent directory listings
 * Feature: Removes the wp-version, except in admin-area

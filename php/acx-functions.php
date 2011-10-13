@@ -21,6 +21,8 @@ function _pageDatabase()  { echo acxUtil::loadPage('database'); }
 function _pageReports()   { echo acxUtil::loadPage('reports'); }
 /** Displays the plug-in's password strength tools page */
 function _pagePwTools()   { echo acxUtil::loadPage('pw_tool'); }
+/** Displays the plug-in's options page */
+function _pagePluginOptions()  { echo acxUtil::loadPage('options'); }
 /** Displays the plug-in's about page */
 function _pageAbout()     { echo acxUtil::loadPage('about'); }
 
@@ -33,6 +35,7 @@ function _acx_createAdminMenu()
             add_submenu_page(ACX_PREFIX, __('Scan Reports'), __('Scan Reports'), 'edit_pages', ACX_PREFIX.'reports', '_pageReports');
             add_submenu_page(ACX_PREFIX, __('Database'), __('Database'), 'edit_pages', ACX_PREFIX.'database', '_pageDatabase');
             add_submenu_page(ACX_PREFIX, __('Password Strength Tool'), __('Password'), 'edit_pages', ACX_PREFIX.'pwd_tool', '_pagePwTools');
+            add_submenu_page(ACX_PREFIX, __('Plugin Options'), __('Options'), 'edit_pages', ACX_PREFIX.'plugin_options', '_pagePluginOptions');
             add_submenu_page(ACX_PREFIX, __('About WSD'), __('About WSD'), 'edit_pages', ACX_PREFIX.'about', '_pageAbout');
     }
 }

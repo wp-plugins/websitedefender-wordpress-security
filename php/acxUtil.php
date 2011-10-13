@@ -231,29 +231,7 @@ class acxUtil
         if ($numRights >= 5) {
             $rightstoomuch = true;
         }
-        
-/*
-		$to = preg_quote("TO '".DB_USER."'@'".DB_HOST."'");
 
-        foreach ($rights as $right)
-        {
-            if (!empty($right[0]))
-            {
-                //@ If GRANT ALL
-                if (preg_match("/\bALL PRIVILEGES\b(.*)".$to."/msiU", $right[0]))
-                {
-                    $rightsenough = $rightstoomuch = true;
-                    break;
-                }
-                //@ IF ALTER
-                else if (preg_match("/\bALTER(\s+)[^a-z],\b".$to."/msiU", $right[0]))
-                {
-                    $rightsenough = true;
-                    break;
-                }
-            }
-        }
-*/		
 		return array(
 			'rightsEnough' => $rightsenough,
 			'rightsTooMuch' => $rightstoomuch,
@@ -265,7 +243,8 @@ class acxUtil
  * COMMON
  * ===================================================
  */
-
+    // @since v0.5
+    private static $_pluginID = 'acx_plugin_dashboard_widget';
     /**
      * @public
      * @static
@@ -278,6 +257,20 @@ class acxUtil
      */
     public static function displayDashboardWidget()
     {
+        // @since v0.5
+        if ($_SERVER['REQUEST_METHOD'] == 'POST')
+        {
+            $opt = get_option('WSD-RSS-WGT-DISPLAY');
+            if (empty($opt)) {
+                add_option('WSD-RSS-WGT-DISPLAY', 'no');
+            }
+            else {
+                update_option('WSD-RSS-WGT-DISPLAY', 'no');
+            }
+            self::_hideDashboardWidget();
+            return;
+        }
+
         //@ flag
         $run = false;
         
@@ -352,6 +345,26 @@ class acxUtil
                     endforeach;
                 }
             $out.= '</ul>';
+            
+            $path = trailingslashit(get_option('siteurl')).'wp-content/plugins/websitedefender-wordpress-security/';
+
+            $out .= '<div style="border-top: solid 1px #ccc; margin-top: 4px; padding: 2px 0;">';
+                $out .= '<p style="margin: 5px 0 0 0; padding: 0 0; line-height: normal; overflow: hidden;">';
+                    $out .= '<a href="http://feeds.feedburner.com/Websitedefendercom"
+                                style="float: left; display: block; width: 50%; text-align: right; margin-top: 0; margin-left: 30px;
+                                padding-right: 22px; background: url('.$path.'res/images/rss.png) no-repeat right center;"
+                                target="_blank">Follow us on RSS</a>';
+                    $out .= '<a href="#" id="wsd_close_rss_widget"
+                                style="float: right; display: block; width: 16px; height: 16px;
+                                margin: 0 0; background: url('.$path.'res/images/close-button.png) no-repeat 0 0;"
+                                    title="Close widget"></a><form id="wsd_form" method="post"></form>';
+                $out .= '</p>';
+                $out .= '<script type="text/javascript">
+                    document.getElementById("wsd_close_rss_widget").onclick = function(){
+                            document.getElementById("wsd_form").submit();
+                        };
+                </script>';
+            $out .= '</div>';
         }
         
         // Update cache
@@ -366,16 +379,30 @@ class acxUtil
     /**
      * @public
      * @static
-     * @since v0.1
-     * 
      * Add the rss widget to dashboard
-	 *
      * @return void
      */
     public static function addDashboardWidget()
     {
-        wp_add_dashboard_widget('acx_plugin_dashboard_widget', __('WebsiteDefender news and updates'), 'acxUtil::displayDashboardWidget');
+        // update 10/04/2011
+        $opt = get_option('WSD-RSS-WGT-DISPLAY');
+        if(strtolower($opt) == 'yes'):
+            wp_add_dashboard_widget(self::$_pluginID,
+                                    __('WebsiteDefender news and updates'),
+                                    'acxUtil::displayDashboardWidget');
+        endif;
     } 
+    /**
+     * Hide the dashboard rss widget
+     * @static
+     * @public
+     * @since v0.5
+     */
+    public static function _hideDashboardWidget()
+    {
+        echo '<script>document.getElementById("'.self::$_pluginID.'").style.display = "none";</script>';
+    }
+    
 
 
 /*
@@ -490,7 +517,7 @@ class acxUtil
 	*/
 	public static function hideWpVersionBackend()
 	{
-		if (is_admin() && !user_can(wp_get_current_user(),'update_plugins'))
+		if (is_admin() && !current_user_can('update_plugins'))
 		{
 			wp_enqueue_script('remove-wp-version', ACX_PLUGIN_PATH.'res/js/remove_wp_version.js', array('jquery'));
 			remove_action( 'update_footer', 'core_update_footer' );
@@ -632,7 +659,7 @@ class acxUtil
      */
 	public static function removeCoreUpdateNotification()
 	{
-		if (!user_can(wp_get_current_user(),'update_plugins'))
+		if (!current_user_can('update_plugins'))
 		{
 			add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_notices', 'maintenance_nag' );" ) );
 			add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_notices', 'update_nag', 3 );" ) );
@@ -658,7 +685,7 @@ class acxUtil
      */
 	public static function removePluginUpdateNotifications()
 	{
-		if (!user_can(wp_get_current_user(),'update_plugins'))
+		if (!current_user_can('update_plugins'))
 		{
 			add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', 'wp_plugin_update_rows' );" ), 2 );
 			add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', '_maybe_update_plugins' );" ), 2 );
@@ -687,7 +714,7 @@ class acxUtil
      */
 	public static function removeThemeUpdateNotifications()
 	{
-		if (!user_can(wp_get_current_user(),'edit_themess'))
+		if (!current_user_can('edit_themes'))
 		{
 			remove_action( 'load-themes.php', 'wp_update_themes' );
 			remove_action( 'load-update.php', 'wp_update_themes' );
@@ -795,7 +822,7 @@ class acxUtil
 	 */
 	public static function hideAdminNotifications()
 	{
-		if (!user_can(wp_get_current_user(),'update_plugins'))
+		if (!current_user_can('update_plugins'))
 		{
 			add_action('init', create_function('$a', "remove_action('init', 'wp_version_check');"), 2);
 			add_filter('pre_option_update_core', create_function('$a', "return null;"));
@@ -807,6 +834,60 @@ class acxUtil
 *	INFO
 *=================================================
 */
+	/**
+     * @public
+     * @static
+     * @since v0.5
+	 * Retrieve various information about the current system
+	 * @return string
+	 */
+    public static function getSystemInfoScanReport()
+    {
+        global $wpdb;
+        $sqlversion = $wpdb->get_var("SELECT VERSION() AS version");
+        $mysqlinfo = $wpdb->get_results("SHOW VARIABLES LIKE 'sql_mode'");
+        if (is_array($mysqlinfo)) $sql_mode = $mysqlinfo[0]->Value;
+        if (empty($sql_mode)) $sql_mode = __('Not set');
+        if(ini_get('safe_mode')) $safe_mode = __('On');
+        else $safe_mode = __('Off');
+        if(ini_get('allow_url_fopen')) $allow_url_fopen = __('On');
+        else $allow_url_fopen = __('Off');
+        if(ini_get('upload_max_filesize')) $upload_max = ini_get('upload_max_filesize');
+        else $upload_max = __('N/A');
+        if(ini_get('post_max_size')) $post_max = ini_get('post_max_size');
+        else $post_max = __('N/A');
+        if(ini_get('max_execution_time')) $max_execute = ini_get('max_execution_time');
+        else $max_execute = __('N/A');
+        if(ini_get('memory_limit')) $memory_limit = ini_get('memory_limit');
+        else $memory_limit = __('N/A');
+        if (function_exists('memory_get_usage')) $memory_usage = round(memory_get_usage() / 1024 / 1024, 2) . __(' MByte');
+        else $memory_usage = __('N/A');
+        if (is_callable('exif_read_data')) $exif = __('Yes'). " ( V" . substr(phpversion('exif'),0,4) . ")" ;
+        else $exif = __('No');
+        if (is_callable('iptcparse')) $iptc = __('Yes');
+        else $iptc = __('No');
+        if (is_callable('xml_parser_create')) $xml = __('Yes');
+        else $xml = __('No');
+
+        $out  = '<li><p><span>'.__('Operating System').' : <strong>'.PHP_OS.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('Server').' : <strong>'.$_SERVER["SERVER_SOFTWARE"].'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('Memory usage').' : <strong>'.$memory_usage.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('MYSQL Version').' : <strong>'.$sqlversion.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('SQL Mode').' : <strong>'.$sql_mode.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Version').' : <strong>'.PHP_VERSION.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Safe Mode').' : <strong>'.$safe_mode.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Allow URL fopen').' : <strong>'.$allow_url_fopen.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Memory Limit').' : <strong>'.$memory_limit.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Max Upload Size').' : <strong>'.$upload_max.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Max Post Size').' : <strong>'.$post_max.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Max Script Execute Time').' : <strong>'.$max_execute.'s</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Exif support').' : <strong>'.$exif.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP IPTC support').' : <strong>'.$iptc.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP XML support').' : <strong>'.$xml.'</strong></span></p></li>';
+
+        return $out;
+    }
+
 	//@@ 11.a
 	public static function getCurrentVersionInfo()
 	{
@@ -937,7 +1018,10 @@ class acxUtil
                 We suggest that you limit his rights or to use another User with more limited rights instead, to increase your website's Security.");
         }
 
-		return '<span class="acx-icon-alert-info">'.$m.'</span>';
+        if (! empty($m)){
+            $m = '<span class="acx-icon-alert-info">'.$m.'</span>';
+        }
+        return $m;
 	}
 
 	//@@ 11.h-1 (c)

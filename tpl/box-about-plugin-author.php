@@ -22,11 +22,11 @@ if (!ACX_SHOULD_LOAD) { exit; }
     of your web site and gives you easy to understand solutions to keep your website safe. With WebsiteDefender you can:');?></p>
 
 <ul class="acx-common-list">
-    <li>Detect Malware present on your website</li>
-    <li>Audit your web site for security issues</li>
-    <li>Avoid getting blacklisted by Google</li>
-    <li>Keep your web site content &amp; data safe</li>
-    <li>Get alerted to suspicious hacker activity</li>
+    <li><?php echo __('Detect Malware present on your website');?></li>
+    <li><?php echo __('Audit your web site for security issues');?></li>
+    <li><?php echo __('Avoid getting blacklisted by Google');?></li>
+    <li><?php echo __('Keep your web site content &amp; data safe');?></li>
+    <li><?php echo __('Get alerted to suspicious hacker activity');?></li>
 </ul>
 
 <p><?php echo sprintf(__('All via an easy-to-understand web based dashboard which gives step by step solutions!
