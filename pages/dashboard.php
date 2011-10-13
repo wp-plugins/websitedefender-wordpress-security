@@ -12,13 +12,6 @@ if (!defined('ACX_PLUGIN_NAME')) { exit; }
     //@@ Only load in the plug-in pages
 if (!ACX_SHOULD_LOAD) { exit; }
 ?>
-<?php
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-?>
 <div id="acx-wrapper" class="dashboard-page">
         
     <div id="acx-header">

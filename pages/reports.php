@@ -26,8 +26,7 @@ if (!ACX_SHOULD_LOAD) { exit; }
         </p>
 
         <div class="metabox-holder">
-
-            <div style="width:99.8%;" class="postbox">
+            <div style="width:49%; float: left;" class="postbox">
                 <h3 class="hndle"><span><?php echo __('Wordpress Scan Report');?></span></h3>
                 <div class="inside acx-section-box">
                     <?php
@@ -35,6 +34,17 @@ if (!ACX_SHOULD_LOAD) { exit; }
                     ?>
                 </div>
             </div>
+            <div style="width:49%; float: right;" class="postbox">
+                <h3 class="hndle"><span><?php echo __('System Information Report');?></span></h3>
+                <div class="inside acx-section-box">
+                    <?php
+                        echo acxUtil::loadTemplate('box-sys-info');
+                    ?>
+                </div>
+            </div>
+        </div>
+          
+        <div class="metabox-holder">
             <div style="width:99.8%;" class="inner-sidebar1 postbox">
                 <h3 class="hndle"><span><?php echo __('File Scan Report');?></span></h3>
                 <div class="inside">
@@ -44,6 +54,6 @@ if (!ACX_SHOULD_LOAD) { exit; }
                 </div>
             </div>
         </div>
-   
+        
     </div><?php /*[ End #acx-page-content ]*/ ?>
 </div><?php /*[ End #acx-wraper ]*/ ?>

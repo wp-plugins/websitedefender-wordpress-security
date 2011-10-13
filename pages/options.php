@@ -1,9 +1,9 @@
 <?php
 /*
- * Displays the Available Tools
+ * Displays the Options page
  * 
  * @package ACX
- * @since v0.1
+ * @since v0.5
  */
 ?>
 <?php
@@ -24,15 +24,15 @@ if (!ACX_SHOULD_LOAD) { exit; }
         <div class="metabox-holder">
             <?php
             /*
-             * PASSWORD STRENGTH TOOL
+             * OPTIONS
              * ================================================================
              */
             ?>
-            <div id="pst" style="width:99.8%;" class="inner-sidebar1 postbox">
-                <h3 class="hndle"><span><?php echo __('Strong Password Generator');?></span></h3>
+            <div id="plugin_options" style="width:99.8%;" class="inner-sidebar1 postbox">
+                <h3 class="hndle"><span><?php echo __('Plug-in options');?></span></h3>
                 <div class="inside" style="padding-bottom: 10px;">
                     <?php
-                        echo acxUtil::loadTemplate('box-password-strength');
+                        echo acxUtil::loadTemplate('box-plugin-options');
                     ?>
                 </div>
             </div>

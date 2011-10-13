@@ -27,7 +27,7 @@ if (!ACX_SHOULD_LOAD) { exit; }
 	$cdtpIsPostBack = false;      // whether or not the form was posted back.
     $acxInfoMessage = $wsd_Message = ''; // Hold the error/info messages generated on form postback
 	$old_prefix = $table_prefix;
-	$new_prefix = ''; // leave empty. it will be populated at runtime
+	$new_prefix = $old_prefix; // leave empty. it will be populated at runtime
     $canAlter = false;  // Assume the user doesn't have ALTER rights
 
 	$wpConfigFile = trailingslashit(ABSPATH).'wp-config.php';

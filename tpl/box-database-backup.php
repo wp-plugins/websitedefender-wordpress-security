@@ -17,7 +17,6 @@ if (!ACX_SHOULD_LOAD) { exit; }
     <blockquote>
         <p><?php echo __('Your WordPress database contains every post, every comment and every link you have on your blog. If your database gets erased or corrupted, you stand to lose everything you have written. There are many reasons why this could happen and not all are things you can control. But what you can do is <strong>back up your data</strong>.'); ?></p>
         <p style="text-align: center;"><?php echo __('<strong>Please backup your database before using this tool!</strong>');?></p>
-        <p style="text-align: right;"><cite><a href="http://codex.wordpress.org/WordPress_Backups" target="_blank">Wordpress</a></cite></p>
     </blockquote>
 </div>
 
