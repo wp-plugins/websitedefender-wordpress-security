@@ -8,6 +8,7 @@
  * $rev #3 08/23/2011 {c}$
  * $rev #4 09/20/2011 {c}$
  * $rev #5 09/30/2011 {c}$
+ * $rev #6 12/17/2011 {c}$
  */
 class acxWSD
 {
@@ -30,12 +31,12 @@ class acxWSD
     const HTTP_BODY = 2;
     const HTTP_CHUNK_HEADER = 3;
     const HTTP_CHUNK_BODY = 4;
-    
-    
+
+
     // constructor
     public function __construct() {}
 
-    
+
     function site_url()
     {
         $url = get_option( 'siteurl' );
@@ -48,7 +49,7 @@ class acxWSD
         $result = parse_url($url);
         if($result === null) { return array("error"=> __("Invalid URL.")); }
         $result["error"] = null;
-        if(!array_key_exists("port", $result)) {$result["port"] = 21;}
+        if(!array_key_exists("port", $result)) {$result["port"] = 80;}
         if(!array_key_exists("scheme", $result)) {$result["scheme"] = "http";}
         if(!array_key_exists("query", $result)) {$result["query"] = "";}
         else {$result["query"] = "?" . $result["query"];}
@@ -88,7 +89,7 @@ class acxWSD
         if(array_key_exists("port", $result)) {$port = ":".$result["port"];}
 
         $result["all"] = $scheme."://".$userPass.$result["host"].$port;
-        
+
         return $result;
     }
 
@@ -109,13 +110,13 @@ class acxWSD
 
         $scheme = $url["scheme"]=="https" ? "ssl://" : "";
 
-        $fp = fsockopen($scheme.$url["host"], $url["port"] , $errno, $errstr, $timeout);	
+        $fp = fsockopen($scheme.$url["host"], $url["port"] , $errno, $errstr, $timeout);
 
       if (!$fp)
       {
         if($scheme == "ssl://")
         {
-          $fp = fsockopen($url["host"], 21 , $errno, $errstr, $timeout);
+          $fp = fsockopen($url["host"], 80 , $errno, $errstr, $timeout);
           if (!$fp)
           {
             error_reporting($e);
@@ -132,11 +133,11 @@ class acxWSD
       $out  = $verb." ".$url["path"].$url["query"]." HTTP/1.1\r\n";
       $out .= "Host: ". $url["host"] . "\r\n";
       $out .= "Connection: Close\r\n";
-      $out .= "Accept-Encoding: identity\r\n"; 
-      if($verb == "POST") {$out .= "Content-Length: " . strlen($body) . "\r\n"; }   
-      foreach ($headers as $name => $value) {$out .= $name .": " . $value . "\r\n";}    
-      $out .= "\r\n";    
-      if($verb == "POST") {$out .= $body;}    
+      $out .= "Accept-Encoding: identity\r\n";
+      if($verb == "POST") {$out .= "Content-Length: " . strlen($body) . "\r\n"; }
+      foreach ($headers as $name => $value) {$out .= $name .": " . $value . "\r\n";}
+      $out .= "\r\n";
+      if($verb == "POST") {$out .= $body;}
       fwrite($fp, $out);
       fflush($fp);
 
@@ -180,11 +181,11 @@ class acxWSD
               $status = self::HTTP_CHUNK_HEADER;
             }
             else {$status = self::HTTP_BODY;}
-            
+
             continue;
           }
 
-          $data = trim($data);    		
+          $data = trim($data);
           $separator = strpos($data, ": ");
 
           if(($separator === false)||($separator == 0) || ($separator >= (strlen($data) -2))) {
@@ -347,12 +348,12 @@ class acxWSD
     function render_error($custom_message = null)
     {
       $html = '';
-      
+
       if ($custom_message === null) {
         $html = '<p class="wsd-error-summary">' . $GLOBALS['wsd_last_err']['message'];
       }
       else {$html = '<p class="wsd-error-summary">' . $custom_message;}
-      
+
         $html .= '<br /><span class="wsd-error-summary-detail">';
             $html .= __('If the problem persists please continue at <a href="https://dashboard.websitedefender.com" target="_blank">Website Defender</a>.');
         $html .='</span>';
@@ -373,17 +374,20 @@ class acxWSD
       echo $html;
     }
 
+    // $rev #6 12/17/2011 {c}$
     function render_user_login($error = '')
     {
-		if(empty($error))
+		if(! empty($error))
 		{
-			echo '<div class="wsd-inside">';
-				echo acxUtil::loadTemplate('wsd-login-form');
-			echo '</div>';
-		}
-		else {
 			$this->render_error($error);
+//			echo '<div class="wsd-inside">';
+//				echo acxUtil::loadTemplate('wsd-login-form');
+//			echo '</div>';
 		}
+//		else { $this->render_error($error); }
+        echo '<div class="wsd-inside">'
+                ,acxUtil::loadTemplate('wsd-login-form')
+            ,'</div>';
     }
 
     function render_new_user($error = '')
@@ -391,25 +395,29 @@ class acxWSD
 		$form = $this->jsonRPC(self::WSD_URL_RPC, "cPlugin.getfrm", $this->site_url());
 		if ($form === null)
 		{
-			$this->render_error();
-			return;
+            // $rev #6 12/17/2011 {c}$
+            $this->render_user_login();
+            return;
+
+//			$this->render_error();
+//			return;
 		}
 		$recaptcha_publickey = $form['captcha'];
 		if(empty($recaptcha_publickey))
 		{
-			$this->render_error(__('Invalid server response.'));
+			$this->render_error(__('Invalid server response. Please try again in a few moments!'));
 			return;
 		}
 		//@ Display form
 		echo '<div class="wsd-inside">';
-        
+
 			echo acxUtil::loadTemplate('wsd-register-form', array('acxWsd' => $this, 'error' => $error, 'recaptcha_publickey' => $recaptcha_publickey));
 
 			echo '<br/>';
 
-            $this->render_user_login();
+           // $this->render_user_login();
 
-		echo '</div>';
+        echo '</div>';
     }
 
 
@@ -428,7 +436,7 @@ class acxWSD
             return;
         }
 
-        // $password is received as MD5 hash
+        //
         $login = $this->jsonRPC(self::WSD_URL_RPC, "cUser.login", array($email, $password));
 
         if ($login == null) {
@@ -436,11 +444,14 @@ class acxWSD
             return;
         }
 
+        $email = strtolower($email);
         $user = get_option("WSD-USER");
         if ($user === false) {
             add_option("WSD-USER", $email);
         }
-        else {update_option("WSD-USER", $email);}
+        else {
+            $user = strtolower($user);
+            update_option("WSD-USER", $email);}
 
         $this->add_or_process_target();
     }
@@ -496,7 +507,7 @@ class acxWSD
           $this->render_target_status();
           return;
         }
-      }  
+      }
 
       //the target was not there so we have to register a new one
       $newtarget = $this->jsonRPC(self::WSD_URL_RPC, "cTargets.add", $this->site_url());
@@ -536,7 +547,7 @@ class acxWSD
 
       $agent = $this->httpRequest("GET", self::WSD_URL_DOWN.'?id='.$newtarget['id'], "", $headers);
 
-      $_e = __('WebsiteDefender Agent failed to be copied automatically. Please <a href="http://www.websitedefender.com/faq/agent-installation-failure/" target="_blank">read</a> the following for further instructions on how to copy it manually.');  
+      $_e = __('WebsiteDefender Agent failed to be copied automatically. Please <a href="http://www.websitedefender.com/faq/agent-installation-failure/" target="_blank">read</a> the following for further instructions on how to copy it manually.');
 
       if($agent["error"] !== null) {
         $targetInstalError = $_e; //can't download
@@ -557,12 +568,12 @@ class acxWSD
       }
 
       //test the agent, this will triger agentless if agent not functioning
-      $testTarget = $this->jsonRPC(self::WSD_URL_RPC, "cTargets.agenttest", $newtarget['id']);  
+      $testTarget = $this->jsonRPC(self::WSD_URL_RPC, "cTargets.agenttest", $newtarget['id']);
       $enbableTarget = $this->jsonRPC(self::WSD_URL_RPC, "cTargets.enable", array($newtarget['id'], true));
 
       if($targetInstalError != '') {$this->render_agent_install_issues($targetInstalError);}
 
-      $this->render_target_status();  
+      $this->render_target_status();
     }
 
     function process_new_user_form()
@@ -625,31 +636,35 @@ class acxWSD
         $this->render_new_user(__('Registration failed! Please try again.'));
         return;
       }
+      $email = strtolower($email);
       $user = get_option("WSD-USER");
       if($user === false) {
           add_option("WSD-USER", $email);
-      } 
-      else {update_option("WSD-USER", $email);}
-      
+      }
+      else {
+          $user = strtolower($user);
+          update_option("WSD-USER", $email);}
+
       $this->add_or_process_target();
     }
 
     function render_target_status()
     {
-      #echo "render_target_status<br>";
+      //echo "render_target_status<br>";
       $user = get_option('WSD-USER');
-      if(!is_string($user)||($user == "") ) { $user = get_option("admin_email"); } 
+      if(!is_string($user)||($user == "") ) { $user = get_option("admin_email"); }
+      $user = strtolower($user);
       $status = $this->jsonRPC(self::WSD_URL_RPC, "cPlugin.status", array($user, get_option('WSD-TARGETID'), $this->site_url()));
       if($status === null)
       {
         $this->render_error();
-        return;  
+        return;
       }
       if((!array_key_exists('active', $status)) || ($status['active'] !== 1))
       {
         //our target is not valid anymore
         delete_option('WSD-TARGETID');
-        
+
         // Display the add target id form
         // update: $rev 4
         $this->render_add_target_id();
@@ -658,8 +673,8 @@ class acxWSD
       }
 
       echo '<p class="wsd-inside">';
-        echo sprintf(__('Thank you for registering with WebsiteDefender. 
-                    Please navigate to the <a target="_blank" href="%s">WebsiteDefender dashboard</a> 
+        echo sprintf(__('Thank you for registering with WebsiteDefender.
+                    Please navigate to the <a target="_blank" href="%s">WebsiteDefender dashboard</a>
                     to monitor your site\'s security.'),self::WSD_URL);
       echo "</p>";
 
@@ -715,6 +730,31 @@ class acxWSD
         return;
       }
 
+//-- GET
+      $rm = strtoupper($_SERVER['REQUEST_METHOD']);
+      if ('GET' == $rm)
+      {
+          $targetid = get_option("WSD-TARGETID");
+          if($targetid !== false)
+          {
+            $this->render_target_status();
+            return;
+          }
+
+          $u = get_option('WSD-USER');
+          if (false === $u)
+          {
+              $this->render_new_user();
+              return;
+          }
+          else{
+              $this->render_user_login();
+              return;
+          }
+      }
+
+
+//-- POST
       if(isset($_POST['wsd-new-user']))
       {
         $this->process_new_user_form();
@@ -733,23 +773,14 @@ class acxWSD
         return;
       }
 
-      $targetid = get_option("WSD-TARGETID");
-      if($targetid !== false)
-      {
-        $this->render_target_status();
-        return;
-      }
-
       $hello = $this->jsonRPC(self::WSD_URL_RPC, "cPlugin.hello", $this->site_url());
       if($hello == null)
       {
         // update: $rev 4
         $this->render_new_user();
-        
         return;
       }
-
-      if($hello == 'registered')
+      elseif($hello == 'registered')
       {
         $this->render_add_target_id();
         return;
@@ -762,7 +793,7 @@ class acxWSD
       }
       else
       {
-        $this->render_error(__("Invalid server response."));
+        $this->render_error(__("Invalid server response. Please try again in a few minutes!"));
         return;
       }
     }

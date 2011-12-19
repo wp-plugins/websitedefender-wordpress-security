@@ -1,9 +1,9 @@
 <?php
 /*
     Plugin Name: WebsiteDefender WordPress Security
-    Plugin URI: http://www.websitedefender.com/websitedefender-wordpress-security
+    Plugin URI: http://www.websitedefender.com/websitedefender-wordpress-security-plugin/
     Description: WebsiteDefender WordPress security plug-in helps you secure your WordPress installation and suggests corrective actions for: Passwords, File permissions, Database security, Version hiding, WordPress admin protection/security and much more!
-    Version: 0.5
+    Version: 0.6
     Author: WebsiteDefender
     Author URI: http://websitedefender.com/
     License: GPLv2 or later
@@ -14,7 +14,7 @@
 /*  Copyright 2011  WebsiteDefender.com  (email : support@websitedefender.com)
 
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
+    it under the terms of the GNU General Public License, version 2, as
     published by the Free Software Foundation.
 
     This program is distributed in the hope that it will be useful,
@@ -31,6 +31,12 @@
  * Gets the plug-in's name
  */
     define('ACX_PLUGIN_NAME', basename(realpath(dirname(__FILE__))));
+
+/**
+ * @since v0.6
+ */
+define('WSD_WPS_PLUGIN_VERSION', '0.6');
+
 
 /**
  * Sets the plug-in nice name
@@ -66,7 +72,21 @@ if (ACX_SHOULD_LOAD) :
 
 endif; /*[ END IF (ACX_SHOULD_LOAD) ]*/
 
-
+#############
+$de = strtolower(ini_get('display_errors'));
+/*
+ * @since v0.6
+ * Get the value of the display_errors setting
+ */
+define('WSDWPS_ERROR_REPORTING_SETTING', $de);
+$de = strtolower(ini_get('display_startup_errors'));
+/*
+ * @since v0.6
+ * Get the value of the display_startup_errors setting
+ */
+define('WSDWPS_STARTUP_ERRORS_SETTING', $de);
+unset($de);
+#############
 
 /*
  * TRIGGER ACTIONS
@@ -127,4 +147,3 @@ add_action('admin_menu', "_acx_createAdminMenu");
 
 //## Display the "Settings" menu on plug-in page
 add_filter( 'plugin_action_links_'.plugin_basename(__FILE__), 'acx_admin_plugin_actions', -10);
-    

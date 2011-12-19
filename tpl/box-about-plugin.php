@@ -1,7 +1,7 @@
 <?php
 /*
  * Displays info about the plug-in
- * 
+ *
  * @package ACX
  * @since v0.1
  */

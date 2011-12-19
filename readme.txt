@@ -2,7 +2,7 @@
 Contributors: WebsiteDefender
 Tags: security, securityscan, chmod, permissions, admin, administration, authentication, database, dashboard, post, notification, password, plugin, posts, wsd, websitedefender, plugins, private, protection, tracking, wordpress
 Requires at least: 3.0
-Tested up to: 3.2.1
+Tested up to: 3.3
 Stable tag: trunk
 License: GPLv2 or later
 
@@ -40,7 +40,7 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 
 == Requirements ==
-* WordPress version 3.0 and higher (tested at 3.1)
+* WordPress version 3.0 and higher (tested with 3.2.1, 3.3)
 * PHP5 (tested with PHP Interpreter >= 5.2.9)
 
 
@@ -79,24 +79,35 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 == Changelog ==
 
-= 0.5 =
+= v0.6 =
+* New feature: Added 'nonce' fields to forms where needed (thanks to julio from boiteaweb.fr)
+* New feature: Added tooltips to the most important sections of the System Information box
+* Update: Plugin settings are now accessible only by WordPress administrators
+* Update: Text and hyperlink UI updates
+* Update: Updated validation for plug-in form fields (email address, user name, target id, etc.)
+* Update: Enhanced the input validation for the Change Database Prefix tool
+* Update: Improved the validation of permissions for readme.html file
+* Update: Improved user-rights retrieval in the WordPress database
+
+
+= v0.5 =
 * New feature: A System Information Report box provides a summary of your web server's components
 * New setting: Option to open / close WebsiteDefender dashboard widget
 * Update: Internal code updates
 * Update: More help resource links
 
-= 0.4 =
+= v0.4 =
 * BugFix: The bug reported about ALTER rights retrieval has been addressed
 * Update: Code cleanup
 * Update: Minor internal updates
 
-= 0.3 =
+= v0.3 =
 * Update: Minor updates
 
 = 0.2 =
 * Update: Minor updates
 
-= 0.1 =
+= v0.1 =
 * Feature: Removes error-information on login-page
 * Feature: Adds index.php to the wp-content, wp-content/plugins, wp-content/themes and wp-content/uploads directories to prevent directory listings
 * Feature: Removes the wp-version, except in admin-area

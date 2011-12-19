@@ -20,12 +20,13 @@ if (!ACX_SHOULD_LOAD) { exit; }
         if(empty($emailAddress)){
             $emailAddress = get_option('admin_email');
         }
+        $emailAddress = strtolower($emailAddress);
     ?>
     <p>
         <label><?php echo __('WebsiteDefender email account');?>:</label>
         <br/>
         <input type="text" name="user_email" id="user_email" style="width: 200px;" value="<?php echo $emailAddress;?>"/>
-    </p>    
+    </p>
     <p>
         <label for="targetid"><?php echo __('Target ID');?>:</label>
         <br/>
@@ -38,7 +39,7 @@ if (!ACX_SHOULD_LOAD) { exit; }
             <?php
                 echo __('To get the WebsiteDefender target ID of your website, login to the
                             <a href="https://dashboard.websitedefender.com/" target="_blank">WebsiteDefender dashboard</a>
-                            and from the <code>Website Settings</code> navigate to the <code>Status</code> tab. The Target ID 
+                            and from the <code>Website Settings</code> navigate to the <code>Status</code> tab. The Target ID
                             can be found under the <code>Scan Status</code> section.');
             ?>
         </p>

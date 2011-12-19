@@ -58,12 +58,15 @@ $acxFileList = array(
 	'wp-includes' => array( 'filePath' => $_acx_wpIncludes, 'suggestedPermissions' => '0755'),
 
 //@@ Files
-	'.htaccess' => array( 'filePath' => $_acx_base_path.'.htaccess', 'suggestedPermissions' => '0640'),
-    'readme.html' => array( 'filePath' => $_acx_base_path.'readme.html', 'suggestedPermissions' => '0400'),
+	'.htaccess' => array( 'filePath' => $_acx_base_path.'.htaccess', 'suggestedPermissions' => '0644'),
 	'wp-config.php' => array( 'filePath' => $_acx_base_path.'wp-config.php', 'suggestedPermissions' => '0644'),
 	'wp-admin/index.php' => array( 'filePath' => $_acx_wpAdmin.'/index.php', 'suggestedPermissions' => '0644'),
-	'wp-admin/.htaccess' => array( 'filePath' => $_acx_wpAdmin.'/.htaccess', 'suggestedPermissions' => '0640'),
+	'wp-admin/.htaccess' => array( 'filePath' => $_acx_wpAdmin.'/.htaccess', 'suggestedPermissions' => '0644'),
 );
+// only if exists
+if (is_file($_acx_base_path.'readme.html')){
+    $acxFileList['readme.html'] = array( 'filePath' => $_acx_base_path.'readme.html', 'suggestedPermissions' => array(octdec('0000'),octdec('0400'),octdec('0440'), octdec('0040')));
+}
 
 
 

@@ -29,6 +29,10 @@ function _pageAbout()     { echo acxUtil::loadPage('about'); }
 /** Creates the plug-in's admin menu */
 function _acx_createAdminMenu()
 {
+    if (!current_user_can('administrator'))
+    {
+        return false;
+    }
     if (function_exists('add_menu_page'))
     {
         add_menu_page( __('WSD Security Dashboard'), __('WSD Security'), 'edit_pages', ACX_PREFIX, '_pageDashboard', ACX_PLUGIN_PATH.'res/images/wsd-logo-small-list.png');
@@ -43,11 +47,11 @@ function _acx_createAdminMenu()
 /**
  * @public
  * @since v0.1
- * 
+ *
  * Add the 'Settings' link to the plugin page
- * 
+ *
  * @param array $links
- * @return array 
+ * @return array
  */
 function acx_admin_plugin_actions($links) {
 	$links[] = '<a href="admin.php?page='.ACX_PREFIX.'">'.__('Settings').'</a>';
@@ -59,7 +63,7 @@ function acx_admin_plugin_actions($links) {
  * @public
  * @since v0.1
  * global array $acxFileList
- * 
+ *
  * Apply the suggested permissions for the list of files
  * provided in the global $acxFileList array.
  *
@@ -68,18 +72,18 @@ function acx_admin_plugin_actions($links) {
 function acx_changeFilePermissions()
 {
 	global $acxFileList;
-	
+
 	if (empty($acxFileList)) {
 		return array();
 	}
-	
+
 	$s = $f = 0;
 
 	foreach($acxFileList as $k => $v)
 	{
 		$filePath = $v['filePath'];
 		$sp = $v['suggestedPermissions'];
-		
+
 		//@ include directories too
 		if (file_exists($filePath))
         {
@@ -99,7 +103,7 @@ if (!function_exists('make_seed')) :
 	/**
 	 * @public
 	 * @since v0.1
-	 * 
+	 *
 	 * Create a number
 	 *
 	 * @return double
@@ -117,7 +121,7 @@ if (!function_exists('make_password')) :
 	 * @public
 	 * @since v0.1
 	 * @uses make_seed()
-	 * 
+	 *
 	 * Generate a strong password
 	 *
 	 * @return string
@@ -149,14 +153,14 @@ if (!function_exists('acx_getFilePermissions')) :
 		if (!function_exists('fileperms')) {
 			return '-1';
 		}
-        
+
         if (!file_exists($filePath)) {
             return '-1';
         }
-	
+
 		clearstatcache();
-		
-		return substr(sprintf("%o", fileperms($filePath)), -4);
+
+		return substr(sprintf("%o", @fileperms($filePath)), -4);
 	}
 endif;
 
@@ -179,7 +183,7 @@ if (!function_exists('acx_backupDatabase')) :
 			$s = sprintf(__('The %s directory <strong>MUST</strong> be writable for this feature to work!'), $dir);
 			wp_die($s);
 		}
-		
+
 		$link = mysql_connect(DB_HOST, DB_USER, DB_PASSWORD);
 		if (!$link) {
 			wp_die(__('Error: Cannot connect to database!'));
@@ -187,7 +191,7 @@ if (!function_exists('acx_backupDatabase')) :
 		if (!mysql_select_db(DB_NAME,$link)) {
 			wp_die(__('Error: Could not select the database!'));
 		}
-	
+
 		//get all of the tables
 		$tables = array();
 		$result = mysql_query('SHOW TABLES');
@@ -195,31 +199,31 @@ if (!function_exists('acx_backupDatabase')) :
 		{
 			$tables[] = $row[0];
 		}
-	
+
 		if (empty($tables))
 		{
 			wp_die(__('Could not retrieve the list of tables from the database!'));
 		}
-	
+
 		$return = 'CREATE DATABASE IF NOT EXISTS '.DB_NAME.";\n\n";
 		$return .= 'USE '.DB_NAME.";\n\n";
-	
+
 		//cycle through
 		foreach($tables as $table)
 		{
 			$result = mysql_query('SELECT * FROM '.$table);
 			$num_fields = mysql_num_fields($result);
-	
+
 			$return.= 'DROP TABLE IF EXISTS '.$table.';';
 			$row2 = mysql_fetch_row(mysql_query('SHOW CREATE TABLE '.$table));
 			$return.= "\n\n".$row2[1].";\n\n";
-	
-			for ($i = 0; $i < $num_fields; $i++) 
+
+			for ($i = 0; $i < $num_fields; $i++)
 			{
 				while($row = mysql_fetch_row($result))
 				{
 					$return.= 'INSERT INTO '.$table.' VALUES(';
-					for($j=0; $j<$num_fields; $j++) 
+					for($j=0; $j<$num_fields; $j++)
 					{
 						$row[$j] = addslashes($row[$j]);
 						$row[$j] = @ereg_replace("\n","\\n",$row[$j]);
@@ -231,14 +235,14 @@ if (!function_exists('acx_backupDatabase')) :
 			}
 			$return.="\n\n\n";
 		}
-	
+
 		//save file
         $time = gmdate("m-j-Y-h-i-s", time());
         $rand = make_seed()+rand(12131, 9999999);
 		$fname = 'bck_'.$time.'_'.$rand.'.sql';
 		$filePath = trailingslashit($dir).$fname;
 		$ret = acxUtil::writeFile($filePath, $return);
-	
+
 		return (($ret > 0) ? $fname : '');
 	}
 endif;
@@ -269,7 +273,7 @@ if (!function_exists('acx_getTablesToAlter')) :
 	function acx_getTablesToAlter()
 	{
 		global $wpdb;
-		
+
 		return $wpdb->get_results("SHOW TABLES LIKE '".$GLOBALS['table_prefix']."%'", ARRAY_N);
 	}
 endif;
@@ -279,7 +283,7 @@ if (!function_exists('acx_renameTables')) :
 	/**
 	 * @public
 	 * @since v0.1
-	 * @global object $wpdb 
+	 * @global object $wpdb
 	 * Rename tables from database
 	 * @param array the list of tables to rename
 	 * @param string $currentPrefix the current prefix in use
@@ -289,16 +293,16 @@ if (!function_exists('acx_renameTables')) :
 	function acx_renameTables($tables, $currentPrefix, $newPrefix)
 	{
 		global $wpdb;
-	
+
 		$changedTables = array();
-		
+
 		foreach ($tables as $k=>$table)
 		{
 			$tableOldName = $table[0];
-	
+
 			// Try to rename the table
 			$tableNewName = substr_replace($tableOldName, $newPrefix, 0, strlen($currentPrefix));
-	
+
 			// Try to rename the table
 			$wpdb->query("RENAME TABLE `{$tableOldName}` TO `{$tableNewName}`");
 			array_push($changedTables, $tableNewName);
@@ -320,38 +324,38 @@ if (!function_exists('acx_renameDbFields')) :
 	function acx_renameDbFields($oldPrefix,$newPrefix)
 	{
 		global $wpdb;
-	
+
 		/*
 		 * usermeta table
 		 * ===========================
 			wp_*
-		 
+
 		 * options table
 		 * ===========================
 			wp_user_roles
-			
+
 		*/
 		$str = '';
-	
+
 		if (false === $wpdb->query("UPDATE {$newPrefix}options SET option_name='{$newPrefix}user_roles' WHERE option_name='{$oldPrefix}user_roles';")) {
 			$str .= '<br/>'.sprintf(__('Changing value: %suser_roles in table <strong>%soptions</strong>: <font color="#ff0000">Failed</font>')
 							,$newPrefix, $newPrefix);
 		}
-	
+
 		$query = 'UPDATE '.$newPrefix.'usermeta
 					SET meta_key = CONCAT(replace(left(meta_key, ' . strlen($oldPrefix) . "), '{$oldPrefix}', '{$newPrefix}'), SUBSTR(meta_key, " . (strlen($oldPrefix) + 1) . "))
-				WHERE 
-					meta_key IN ('{$oldPrefix}autosave_draft_ids', '{$oldPrefix}capabilities', '{$oldPrefix}metaboxorder_post', '{$oldPrefix}user_level', '{$oldPrefix}usersettings', 
+				WHERE
+					meta_key IN ('{$oldPrefix}autosave_draft_ids', '{$oldPrefix}capabilities', '{$oldPrefix}metaboxorder_post', '{$oldPrefix}user_level', '{$oldPrefix}usersettings',
 					'{$oldPrefix}usersettingstime', '{$oldPrefix}user-settings', '{$oldPrefix}user-settings-time', '{$oldPrefix}dashboard_quick_press_last_post_id')";
-	
+
 		if (false === $wpdb->query($query)) {
 			$str .= '<br/>'.sprintf(__('Changing values in table <strong>%susermeta</strong>: <font color="#ff0000">Failed</font>'), $newPrefix);
 		}
-		
+
 		if (!empty($str)) {
 			$str = __('Changing database prefix').': '.$str;
 		}
-		
+
 		return $str;
 	}
 endif;
@@ -363,7 +367,7 @@ if (!function_exists('acx_updateWpConfigTablePrefix')) :
 	 * @since v0.1
 	 * Update the wp-config file to reflect the table prefix change.
 	 * The wp file must be writable for this operation to work!
-	 * 
+	 *
 	 * @param string $wsd_wpConfigFile The path to the wp-config file
 	 * @param string $oldPrefix the old db prefix
 	 * @param string $newPrefix The new prefix to use instead of the old one
@@ -376,12 +380,12 @@ if (!function_exists('acx_updateWpConfigTablePrefix')) :
 		{
 			return -1;
 		}
-		
+
 		// We need the 'file' function...
 		if (!function_exists('file')) {
 			return -1;
 		}
-	
+
 		// Try to update the wp-config file
 		$lines = file($wsd_wpConfigFile);
 		$fcontent = '';
@@ -401,7 +405,7 @@ if (!function_exists('acx_updateWpConfigTablePrefix')) :
 			// Save wp-config file
 			$result = acxUtil::writeFile($wsd_wpConfigFile, $fcontent);
 		}
-		
+
 		return $result;
 	}
 endif;

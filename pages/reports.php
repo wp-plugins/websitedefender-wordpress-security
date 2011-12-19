@@ -1,7 +1,7 @@
 <?php
 /*
  * Displays info about the current instance's status
- * 
+ *
  * @package ACX
  * @since v0.1
  */
@@ -14,13 +14,13 @@ if (!ACX_SHOULD_LOAD) { exit; }
 ?>
 
 <div id="acx-wrapper" class="summary-page">
-    
+
     <div id="acx-header">
         <h2><?php echo ACX_PLUGIN_NICE_NAME;?></h2>
     </div>
-    
+
     <div id="acx-page-content">
-        
+
         <p style="margin-left: 15px;">
             <?php echo __("This page displays various information after scanning your WordPress website"); ?>:
         </p>
@@ -43,7 +43,7 @@ if (!ACX_SHOULD_LOAD) { exit; }
                 </div>
             </div>
         </div>
-          
+
         <div class="metabox-holder">
             <div style="width:99.8%;" class="inner-sidebar1 postbox">
                 <h3 class="hndle"><span><?php echo __('File Scan Report');?></span></h3>
@@ -54,6 +54,11 @@ if (!ACX_SHOULD_LOAD) { exit; }
                 </div>
             </div>
         </div>
-        
+
+    <?php
+        // DISPLAY THE GLOSSARY
+        echo acxUtil::loadTemplate('box-scan-reports-glossary');
+    ?>
+
     </div><?php /*[ End #acx-page-content ]*/ ?>
 </div><?php /*[ End #acx-wraper ]*/ ?>

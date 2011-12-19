@@ -1,7 +1,7 @@
 <?php
 /*
  * Displays the WP scan results info
- * 
+ *
  * @package ACX
  * @since v0.1
  */
@@ -37,9 +37,11 @@ if (!ACX_SHOULD_LOAD) { exit; }
     <li>
         <p><?php echo acxUtil::getWpAdminHtaccessInfo();?></p>
     </li>
+    <?php /*
     <li>
         <p><?php echo acxUtil::getDatabaseUserAccessRightsInfo();?></p>
     </li>
+     */?>
     <li>
         <p><?php echo acxUtil::getWpContentIndexInfo();?></p>
     </li>

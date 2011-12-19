@@ -21,22 +21,22 @@ class acxUtil
     private function __sleep() {}
     private function __wakeup() {}
     private function __construct(){}
-    
+
     /**
      * @privates
      * @static
      * @since v0.1
      * @see acxUtil::hideWpVersionBackend(), acxUtil::hideWpVersionFrontend()
-     * 
+     *
      * Check to see whether or not the WP version has been hidden from non-admins.
      * Defaults to false.
-     * 
+     *
      * @var boolean
      */
     private static $_isVersionHidden = false;
 
-    
-    
+
+
 /*
  * PUBLIC METHODS
  * ===================================================
@@ -46,10 +46,10 @@ class acxUtil
      * @static
      * @since v0.1
      * @uses wp_die()
-     * 
+     *
      * Check the specified file name for directory traversal attacks.
      * Exits the script if the "..[/]" is found in the $fileName.
-     * 
+     *
      * @param string $fileName The name of the file to check
      * @return void
      */
@@ -68,9 +68,9 @@ class acxUtil
      * @static
      * @since v0.1
      * @uses acxUtil::checkFileName()
-     * 
+     *
      * Retrieve the content of the specified template file.
-     * 
+     *
      * @param type $fileName the name of the template file to load.
      * Without the ".php" file extension.
      * @param array $data The data to send to the template file
@@ -101,9 +101,9 @@ class acxUtil
      * @static
      * @since v0.1
      * @uses acxUtil::checkFileName()
-     * 
+     *
      * Retrieve the content of the specified page file.
-     * 
+     *
      * @param type $fileName the name of the page file to load.
      * Without the ".php" file extension.
      * @return string The parsed content of the page file
@@ -133,7 +133,7 @@ class acxUtil
      * @static
      * @since v0.1
 	 * @uses acxUtl::canWriteToFile()
-     * 
+     *
 	 * Attempts to write the provided $data into the specified $file
 	 * using either file_put_contents or fopen/fwrite functions (whichever is available).
 	 *
@@ -177,7 +177,7 @@ class acxUtil
 	 *
 	 * Check to see whether or not we can write into a file using either
 	 * file_put_contents or fopen/fwrite functions.
-     * 
+     *
      * @return boolean
      */
 	public static function canWriteToFile()
@@ -192,50 +192,64 @@ class acxUtil
      * @global ACX_BLOG_FEED, $wpdb
 	 *
 	 * Retrieve the rights the current used user to connect to the database server has.
-     * 
+     *
      * @return array  array('rightsEnough' => true|false, 'rightsTooMuch' => true|false);
      */
 	public static function getDatabaseUserAccessRights()
 	{
     	global $wpdb;
 
-		$rightsenough = $rightstoomuch = false;
+        $rightsenough = $rightstoomuch = false;
 		$data = array(
 			'rightsEnough' => false,
 			'rightsTooMuch' => false
 		);
 
+
 //@ $rev #1 07/26/2011 {c} $
 //@ $rev #2 09/12/2011 {c} $
+//@ $rev #3 12/13/2011 {c} $
 
-		$rights = $wpdb->get_results("SHOW PRIVILEGES", ARRAY_N);
-        //$wpdb->get_results("SHOW GRANTS FOR '".DB_USER."'@'".DB_HOST."'", ARRAY_N);
+		$rights = $wpdb->get_results("SHOW GRANTS FOR CURRENT_USER()", ARRAY_N);
+        //$rights = $wpdb->get_results("SHOW GRANTS FOR '".DB_USER."'@'".DB_HOST."'", ARRAY_N);
 
 		if (empty($rights)) { return $data; }
 
-        $_tooManyRights = array('CREATE','DELETE','DROP','EVENT','EXECUTE','FILE','GRANT','PROCESS','RELOAD','SHUTDOWN','SUPER');
-        $numRights = 0;
-        foreach ($rights as $right)
+        foreach($rights as $right)
         {
             if (! empty($right[0]))
             {
-                $_right = strtoupper($right[0]);
-                if ('ALTER' == $_right) {
-                    $rightsenough = true;
+                $r = strtoupper($right[0]);
+
+                if (preg_match("/GRANT ALL PRIVILEGES/i", $r)) {
+                    $rightsenough = $rightstoomuch = true;
+                    break;
                 }
-                if (in_array($_right, $tooManyRights)) {
-                    $numRights += 1;
+                else
+                {
+                    if (preg_match("/ALTER\s*[,|ON]/i", $r) &&
+                        preg_match("/CREATE\s*[,|ON]/i", $r) &&
+                        preg_match("/INSERT\s*[,|ON]/i", $r) &&
+                        preg_match("/UPDATE\s*[,|ON]/i", $r) &&
+                        preg_match("/DROP\s*[,|ON]/i", $r)) {
+                        $rightsenough = true;
+                    }
+                    if (preg_match_all("/CREATE|DELETE|DROP|EVENT|EXECUTE|FILE|PROCESS|RELOAD|SHUTDOWN|SUPER/", $r, $matches)){
+                        if (! empty($matches[0])){
+                            $m = $matches[0];
+                            $m = array_unique($m);
+                            if (count($m) >= 5){
+                                $rightstoomuch = true;
+                            }
+                        }
+                    }
                 }
             }
         }
-        if ($numRights >= 5) {
-            $rightstoomuch = true;
-        }
-
 		return array(
 			'rightsEnough' => $rightsenough,
 			'rightsTooMuch' => $rightstoomuch,
-		);    
+		);
 	}
 
 
@@ -250,7 +264,7 @@ class acxUtil
      * @static
      * @since v0.1
      * @global ACX_BLOG_FEED
-     * 
+     *
      * Retrieve and display a list of links for an existing RSS feed, limiting the selection to the 5 most recent items.
 	 *
 	 * @return void
@@ -273,7 +287,7 @@ class acxUtil
 
         //@ flag
         $run = false;
-        
+
         //@ check cache
         $optData = get_option('wsd_feed_data');
         if (! empty($optData))
@@ -305,7 +319,7 @@ class acxUtil
         else { $run = true; }
 
         if (!$run) { return; }
-        
+
         $rss = fetch_feed(ACX_BLOG_FEED);
 
         $out = '';
@@ -317,11 +331,11 @@ class acxUtil
         }
         else
         {
-            // Limit to 5 entries. 
-            $maxitems = $rss->get_item_quantity(5); 
+            // Limit to 5 entries.
+            $maxitems = $rss->get_item_quantity(5);
 
             // Build an array of all the items,
-            $rss_items = $rss->get_items(0, $maxitems); 
+            $rss_items = $rss->get_items(0, $maxitems);
 
             $out .= '<ul>';
                 if ($maxitems == 0)
@@ -345,7 +359,7 @@ class acxUtil
                     endforeach;
                 }
             $out.= '</ul>';
-            
+
             $path = trailingslashit(get_option('siteurl')).'wp-content/plugins/websitedefender-wordpress-security/';
 
             $out .= '<div style="border-top: solid 1px #ccc; margin-top: 4px; padding: 2px 0;">';
@@ -366,7 +380,7 @@ class acxUtil
                 </script>';
             $out .= '</div>';
         }
-        
+
         // Update cache
         $obj = new stdClass();
             $obj->expires = time();
@@ -374,7 +388,7 @@ class acxUtil
         update_option('wsd_feed_data', $obj);
 
         echo $out;
-    } 
+    }
 
     /**
      * @public
@@ -391,7 +405,7 @@ class acxUtil
                                     __('WebsiteDefender news and updates'),
                                     'acxUtil::displayDashboardWidget');
         endif;
-    } 
+    }
     /**
      * Hide the dashboard rss widget
      * @static
@@ -402,7 +416,7 @@ class acxUtil
     {
         echo '<script>document.getElementById("'.self::$_pluginID.'").style.display = "none";</script>';
     }
-    
+
 
 
 /*
@@ -414,7 +428,7 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Replaces the WP version on the front-end with a random generated number.
 	 *
      * @return void
@@ -466,7 +480,7 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
 	 * Removes various meta tags generators from the blog's head tag.
 	 *
      * @return void
@@ -478,7 +492,7 @@ class acxUtil
 			//@@ remove various meta tags generators from blog's head tag
 			function acx_filter_generator($gen, $type)
 			{
-				switch ( $type ) { 
+				switch ( $type ) {
 					case 'html':
 						$gen = '<meta name="generator" content="WordPress">';
 						break;
@@ -497,7 +511,7 @@ class acxUtil
 					case 'comment':
 						$gen = '<!-- generator="WordPress" -->';
 						break;
-				}    
+				}
 				return $gen;
 			}
 			foreach ( array( 'html', 'xhtml', 'atom', 'rss2', 'rdf', 'comment' ) as $type ) :
@@ -510,15 +524,16 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Hide WP version on dashboard from users that cannot update plug-ins/core.
-     * 
+     *
      * @return void
 	*/
 	public static function hideWpVersionBackend()
 	{
-		if (is_admin() && !current_user_can('update_plugins'))
+		if (is_admin() && !current_user_can('administrator'))
 		{
+            wp_enqueue_style('remove-wpv-css', ACX_PLUGIN_PATH.'res/css/remove_wp_version.css');
 			wp_enqueue_script('remove-wp-version', ACX_PLUGIN_PATH.'res/js/remove_wp_version.js', array('jquery'));
 			remove_action( 'update_footer', 'core_update_footer' );
 
@@ -530,28 +545,28 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Disable error reporting
-     * 
+     *
      * @return void
      */
     public static function disableErrorReporting()
     {
-        @error_reporting(0);
-        @ini_set('display_errors','off');
-		@ini_set('display_startup_errors', 0);
-		
+//      @error_reporting(0);
+//      @ini_set('display_errors','off');
+//		@ini_set('display_startup_errors', 0);
+
 		global $wpdb;
-		
+
 		$wpdb->hide_errors();
 		$wpdb->suppress_errors();
     }
-      
+
     /**
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Load the text domain
 	 *
      * @return void
@@ -567,7 +582,7 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Load css and js resources
 	 *
      * @return void
@@ -575,7 +590,7 @@ class acxUtil
 	public static function loadResources()
 	{
 		wp_enqueue_script('jquery');
-        
+
         //@ for dashboard
     	wp_enqueue_style('acx-wp-dashboard', ACX_PLUGIN_PATH.'res/css/acx-wp-dashboard.css');
 
@@ -592,12 +607,12 @@ class acxUtil
             wp_enqueue_script('acx-wsd-scripts', ACX_PLUGIN_PATH.'res/js/acx-wsd-scripts.js');
         }
 	}
-	
+
     /**
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Adds the plug-in's credits in the admin footer
 	 *
      * @return void
@@ -606,13 +621,11 @@ class acxUtil
 	{
 		if(ACX_SHOULD_LOAD)
 		{
-			echo '<p>';
-			$plugin_data = get_plugin_data(ACX_PLUGIN_DIR.ACX_PLUGIN_NAME.'.php');
-			printf('%1$s plugin | ' . __('Version') . ' <a href="http://wordpress.org/extend/plugins/websitedefender-wordpress-security/changelog/"
-															target="_blank"
-															title="'.__('History').'">%2$s</a> | '.__('Author').' %3$s<br />'
-					, $plugin_data['Title'], $plugin_data['Version'], $plugin_data['Author']);
-			echo '</p>';
+            // plugin name | Version n | Author WebsiteDefender
+            printf('<p class="alignleft"><a href="http://www.websitedefender.com/websitedefender-wordpress-security-plugin/" target="_blank">%s</a> plugin |
+                <a href="http://wordpress.org/extend/plugins/websitedefender-wordpress-security/changelog/" target="_blank" title="%s">v%s</a> | '.
+                __('Author'). ' <a href="http://www.websitedefender.com/" target="_blank">WebsiteDefender</a></p><div class="clear"></div>'
+                    ,'WebsiteDefender WordPress Security', __('History'), WSD_WPS_PLUGIN_VERSION);
 		}
 	}
 
@@ -620,7 +633,7 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Removes Really Smple Discovery meta tags from front-end
 	 *
      * @return void
@@ -636,7 +649,7 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Removes Windows Live Writer meta tags from front-end
 	 *
      * @return void
@@ -652,14 +665,14 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Removes core update notifications from back-end
 	 *
      * @return void
      */
 	public static function removeCoreUpdateNotification()
 	{
-		if (!current_user_can('update_plugins'))
+		if (!current_user_can('administrator'))
 		{
 			add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_notices', 'maintenance_nag' );" ) );
 			add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_notices', 'update_nag', 3 );" ) );
@@ -673,19 +686,19 @@ class acxUtil
 			add_filter( 'pre_site_transient_update_core', create_function( '$a', "return null;" ) );
 		}
 	}
-	
+
     /**
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Removes plug-ins update notifications from back-end
 	 *
      * @return void
      */
 	public static function removePluginUpdateNotifications()
 	{
-		if (!current_user_can('update_plugins'))
+		if (!current_user_can('administrator'))
 		{
 			add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', 'wp_plugin_update_rows' );" ), 2 );
 			add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', '_maybe_update_plugins' );" ), 2 );
@@ -707,14 +720,14 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Removes themes update notifications from back-end
 	 *
      * @return void
      */
 	public static function removeThemeUpdateNotifications()
 	{
-		if (!current_user_can('edit_themes'))
+		if (!current_user_can('administrator'))
 		{
 			remove_action( 'load-themes.php', 'wp_update_themes' );
 			remove_action( 'load-update.php', 'wp_update_themes' );
@@ -730,7 +743,7 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Removes login error notifications from front-end
 	 *
      * @return void
@@ -746,7 +759,7 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
      * Tries to reates the index.php file in the wp-content, wp-content/plugins and wp-content/themes directories to prevent directory listing
 	 *
      * @return void
@@ -754,12 +767,12 @@ class acxUtil
 	public static function preventWpContentDirectoryListing()
 	{
 		$data = '<?php exit;?>';
-		
+
 		$baseDir = trailingslashit(WP_CONTENT_DIR);
 		$pluginsDir = $baseDir.'plugins';
 		$themesDir = $baseDir.'themes';
-		
-		
+
+
 		if (is_writable($baseDir))
 		{
 			$file = $base.'index.php';
@@ -795,7 +808,7 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
 	 * Removes the version parameter from urls
 	 *
 	 * @param  string $src Original script URI
@@ -815,14 +828,14 @@ class acxUtil
      * @public
      * @static
      * @since v0.1
-     * 
+     *
 	 * Hide admin notifications for non admins.
 	 *
 	 * @return void
 	 */
 	public static function hideAdminNotifications()
 	{
-		if (!current_user_can('update_plugins'))
+		if (!current_user_can('administrator'))
 		{
 			add_action('init', create_function('$a', "remove_action('init', 'wp_version_check');"), 2);
 			add_filter('pre_option_update_core', create_function('$a', "return null;"));
@@ -848,8 +861,10 @@ class acxUtil
         $mysqlinfo = $wpdb->get_results("SHOW VARIABLES LIKE 'sql_mode'");
         if (is_array($mysqlinfo)) $sql_mode = $mysqlinfo[0]->Value;
         if (empty($sql_mode)) $sql_mode = __('Not set');
-        if(ini_get('safe_mode')) $safe_mode = __('On');
-        else $safe_mode = __('Off');
+        $sm = ini_get('safe_mode');
+        if (empty($sm)) { $safe_mode = __('Off'); }
+        elseif (strcasecmp('On', $sm) == 0) { $safe_mode = __('On'); }
+        else { $safe_mode = __('Off'); }
         if(ini_get('allow_url_fopen')) $allow_url_fopen = __('On');
         else $allow_url_fopen = __('Off');
         if(ini_get('upload_max_filesize')) $upload_max = ini_get('upload_max_filesize');
@@ -873,17 +888,28 @@ class acxUtil
         $out .= '<li><p><span>'.__('Server').' : <strong>'.$_SERVER["SERVER_SOFTWARE"].'</strong></span></p></li>';
         $out .= '<li><p><span>'.__('Memory usage').' : <strong>'.$memory_usage.'</strong></span></p></li>';
         $out .= '<li><p><span>'.__('MYSQL Version').' : <strong>'.$sqlversion.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('SQL Mode').' : <strong>'.$sql_mode.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('SQL Mode').' : <strong>'.$sql_mode.'</strong></span>
+            <a href="#wsdwp_sql_mode" class="wswdwp-tooltip">(info)</a>
+            </p></li>';
         $out .= '<li><p><span>'.__('PHP Version').' : <strong>'.PHP_VERSION.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP Safe Mode').' : <strong>'.$safe_mode.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP Allow URL fopen').' : <strong>'.$allow_url_fopen.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP Memory Limit').' : <strong>'.$memory_limit.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP Max Upload Size').' : <strong>'.$upload_max.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP Max Post Size').' : <strong>'.$post_max.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP Max Script Execute Time').' : <strong>'.$max_execute.'s</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP Exif support').' : <strong>'.$exif.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP IPTC support').' : <strong>'.$iptc.'</strong></span></p></li>';
-        $out .= '<li><p><span>'.__('PHP XML support').' : <strong>'.$xml.'</strong></span></p></li>';
+        $out .= '<li><p><span>'.__('PHP Safe Mode').' : <strong>'.$safe_mode.'</strong></span>
+            <a href="#wsdwp_safe_mode" class="wswdwp-tooltip">(info)</a></p></li>';
+        $out .= '<li><p><span>'.__('PHP Allow URL fopen').' : <strong>'.$allow_url_fopen.'</strong></span>
+            <a href="#wsdwp_url_fopen" class="wswdwp-tooltip">(info)</a></p></li>';
+        $out .= '<li><p><span>'.__('PHP Memory Limit').' : <strong>'.$memory_limit.'</strong></span>
+            <a href="#wsdwp_memory_limit" class="wswdwp-tooltip">(info)</a></p></li>';
+        $out .= '<li><p><span>'.__('PHP Max Upload Size').' : <strong>'.$upload_max.'</strong></span>
+            <a href="#wsdwp_upload_max_filesize" class="wswdwp-tooltip">(info)</a></p></li>';
+        $out .= '<li><p><span>'.__('PHP Max Post Size').' : <strong>'.$post_max.'</strong></span>
+            <a href="#wsdwp_post_max_size" class="wswdwp-tooltip">(info)</a></p></li>';
+        $out .= '<li><p><span>'.__('PHP Max Script Execute Time').' : <strong>'.$max_execute.'s</strong></span>
+            <a href="#wsdwp_max_execution_time" class="wswdwp-tooltip">(info)</a></p></li>';
+        $out .= '<li><p><span>'.__('PHP Exif support').' : <strong>'.$exif.'</strong></span>
+            <a href="#wsdwp_exif" class="wswdwp-tooltip">(info)</a></p></li>';
+        $out .= '<li><p><span>'.__('PHP IPTC support').' : <strong>'.$iptc.'</strong></span>
+            <a href="#wsdwp_iptc" class="wswdwp-tooltip">(info)</a></p></li>';
+        $out .= '<li><p><span>'.__('PHP XML support').' : <strong>'.$xml.'</strong></span>
+            <a href="#wsdwp_xml" class="wswdwp-tooltip">(info)</a></p></li>';
 
         return $out;
     }
@@ -898,15 +924,15 @@ class acxUtil
 			{
 				return '<span class="acx-icon-alert-success">'.__('You have the latest version of Wordpress.').'</span>';
 			}
-			
+
 			if (!empty($c->updates[0]))
 			{
 				$c = $c->updates[0];
-				
+
 				if ( !isset($c->response) || 'latest' == $c->response ) {
 					return '<span class="acx-icon-alert-success">'.__('You have the latest version of Wordpress.').'</span>';
 				}
-				
+
 				if ('upgrade' == $c->response)
 				{
 					$lv = $c->current;
@@ -915,7 +941,7 @@ class acxUtil
 				}
 			}
 		}
-		
+
 		return '<span class="acx-icon-alert-critical">'.__('An error has occurred while trying to retrieve the status of your Wordpress version.').'</span>';
 	}
 
@@ -923,13 +949,13 @@ class acxUtil
 	public static function getDatabasePrefixInfo()
 	{
 		global $table_prefix;
-		
+
 		if (strcasecmp('wp_', $table_prefix)==0) {
 			return '<span class="acx-icon-alert-critical">'
                         .__('Your database prefix should not be <code>wp_</code>.')
                         .'(<a href="http://www.websitedefender.com/wordpress-security/wordpress-database-tables-prefix/" target="_blank">'.__('read more').'</a>)</span>';
 		}
-		
+
 		return '<span class="acx-icon-alert-success">'.__('Your database prefix is not <code>wp_</code>.').'</span>';
 	}
 
@@ -945,35 +971,40 @@ class acxUtil
     public static function getDbErrorStatusInfo()
     {
 		global $wpdb;
-		
+
 		if ($wpdb->show_errors || !$wpdb->suppress_errors) {
-			return '<span class="acx-icon-alert-critical">'.__('WP <code>displays</code> your database errors.').'</span>'.'<br/>';
+			return '<span class="acx-icon-alert-critical">'.__('WP <code>displays</code> your database errors.').'</span><br/>';
 		}
-        
-		return '<span class="acx-icon-alert-success">'.__('Database errors <code>are not</code> displayed.').'</span>'.'<br/>';
+
+		return '<span class="acx-icon-alert-success">'.__('Database errors <code>are not</code> displayed.').'</span><br/>';
     }
 	//@@ 11.d-2
     public static function getPhpErrorStatusInfo()
     {
-		$de = strtolower(ini_get('display_errors'));
-		if ($de == 'off') {
-			return '<span class="acx-icon-alert-success">'.__('PHP errors <code>are not</code> displayed.').'</span>'.'<br/>';
-		}
-		
-        return '<span class="acx-icon-alert-critical">'.__('PHP errors <code>are displayed</code>.').'</span>'.'<br/>';
+        if (0 == WSDWPS_ERROR_REPORTING_SETTING || 'off' == WSDWPS_ERROR_REPORTING_SETTING || '' == WSDWPS_ERROR_REPORTING_SETTING) {
+            return '<span class="acx-icon-alert-success">'.__('PHP errors <code>are not</code> displayed.').'</span><br/>';
+        }
+        else {
+            return '<span class="acx-icon-alert-critical">'.
+                sprintf(__('PHP Errors are being displayed. Click <a href="%s" target="_blank">here</a> to read more on how to turn them off.')
+                        ,'http://www.websitedefender.com/web-security/php-errors-enabled/')
+                .'</span><br/>';
+        }
     }
 	//@@ 11.d-3
     public static function getPhpStartupErrorStatusInfo()
     {
-		$dse = strtolower(ini_get('display_startup_errors'));
-		if ($dse == 0) {
+		if (0 == WSDWPS_STARTUP_ERRORS_SETTING || 'off' == WSDWPS_STARTUP_ERRORS_SETTING || '' == WSDWPS_STARTUP_ERRORS_SETTING) {
 			return '<span class="acx-icon-alert-success">'.__('Startup errors <code>are not</code> displayed.').'</span><br/>';
 		}
-        
-		return '<span class="acx-icon-alert-critical">'.__('Startup errors <code>are displayed</code>.').'</span>'.'<br/>';
+        else {
+            return '<span class="acx-icon-alert-critical">'.
+                    sprintf(__('Startup Errors are being displayed. Click <a href="%s" target="_blank">here</a> to read more on how to turn them off.')
+                            ,'http://www.websitedefender.com/web-security/php-errors-enabled/').'</span><br/>';
+        }
     }
-    
-    
+
+
 	//@@ 11.e
 	public static function getAdminUsernameInfo()
 	{
@@ -984,7 +1015,7 @@ class acxUtil
 		if (empty($u)) {
 			return '<span class="acx-icon-alert-success">'.__('User <code>admin</code> was not found.').'</span>';
 		}
-		
+
 		return '<span class="acx-icon-alert-critical">'.__('User <code>admin</code> was found! You should change it in order to avoid user enumeration attacks.').'</span>';
 	}
 
@@ -995,7 +1026,7 @@ class acxUtil
 		if (is_file($file)) {
 			return '<span class="acx-icon-alert-success">'.__('The <code>.htaccess</code> file was found in the <code>wp-admin</code> directory.').'</span>';
 		}
-		
+
 		return '<span class="acx-icon-alert-info">'
                 .__('The <code>.htaccess</code> file was not found in the <code>wp-admin</code> directory.')
                 .'(<a href="http://www.websitedefender.com/wordpress-security/htaccess-files-wordpress-security/" target="_blank">'.__('read more').'</a>)</span>';
@@ -1007,15 +1038,14 @@ class acxUtil
 		$rights = self::getDatabaseUserAccessRights();
 		$m = '';
 
-        if (!$rights['rightsEnough']) {
+        if (empty($rights['rightsEnough'])) {
             $m .= __('The User which is used to access your Wordpress Database, hasn\'t enough rights (is missing the <code>ALTER</code> right) to alter the Table structure.
                 Please visit the <a href="http://www.websitedefender.com/category/faq/" target=_blank">WebsiteDefender WP Security Scan WordPress plugin documentation</a> website for more information.
                 If the user <code>has ALTER</code> rights and the tool is still not working,
                 please <a href="http://www.websitedefender.com/contact/" target="_blank">contact</a> us for assistance.');
         }
-        if ($rights['rightsTooMuch']) {
-            $m .= __("Your currently used User to access the Wordpress Database <code>holds too many rights</code>.
-                We suggest that you limit his rights or to use another User with more limited rights instead, to increase your website's Security.");
+        elseif (! empty($rights['rightsTooMuch'])) {
+            $m .= __("The database user used to access the WordPress Database <code>has too many rights</code>. Limit the user's rights to increase your Website's Security.");
         }
 
         if (! empty($m)){
@@ -1054,14 +1084,17 @@ class acxUtil
 		return '<span class="acx-icon-alert-info">'.__('The <code>index.php</code> file <code>was not found</code> in the themes directory! You should create one in order to prevent directory listings.').'</span>'.'<br/>';
 	}
 
-	//@@ 11.h-4 (c)
+	//@@ 11.h-4 (c) /# $id-108$
 	public static function getWpContentUploadsIndexInfo()
 	{
-		if (is_file(trailingslashit(WP_CONTENT_DIR).'uploads/index.php')) {
-			return '<span class="acx-icon-alert-success">'.__('The <code>index.php</code> file <code>was found</code> in the uploads directory.').'</span>'.'<br/>';
-		}
-
-		return '<span class="acx-icon-alert-info">'.__('The <code>index.php</code> file <code>was not found</code> in the uploads directory! You should create one in order to prevent directory listings.').'</span>'.'<br/>';
+        $dir = trailingslashit(WP_CONTENT_DIR).'uploads';
+        if (is_dir($dir))
+        {
+            if (is_file($dir.'/index.php')) {
+                return '<span class="acx-icon-alert-success">'.__('The <code>index.php</code> file <code>was found</code> in the uploads directory.').'</span>'.'<br/>';
+            }
+            else { return '<span class="acx-icon-alert-info">'.__('The <code>index.php</code> file <code>was not found</code> in the uploads directory! You should create one in order to prevent directory listings.').'</span>'.'<br/>'; }
+        }
 	}
 
 	//@@ 11.h-5 (c)
@@ -1072,24 +1105,33 @@ class acxUtil
         if (is_file($path))
         {
             // Get permissions
-            $fpath = trailingslashit(ABSPATH).'readme.html';
+            if (!function_exists('fileperms')) {
+                $fp = '-1';
+            }
+            else {
+                clearstatcache();
+                $fp = @substr(sprintf("%o", fileperms($path)), -3);
+            }
+
             $url = trailingslashit(get_option('siteurl')).'readme.html';
-            
-            $fp = @substr(sprintf("%o", fileperms($fpath)), -4);
-            $range = range('0400','0640');
-            
             $m = sprintf(__('The <code>readme.html</code> file <code>was found</code> in the root directory (<a href="%s" target="_blank">view file</a>).'), $url);
 
+            $range = array(octdec('000'),octdec('400'),octdec('440'), octdec('040'));
+            $crt = octdec($fp);
             //@ bad
-            if (!in_array($fp,$range))
+            if (! in_array($crt,$range))
             {
-                $m .= ' '.__('It is very important to either delete this file or make it inaccessible (chmod <strong>0400</strong> or <strong>0440</strong>) from your browser as it displays your Wordpress version!');
+                $m .= ' '.__('It is very important to either delete this file or make it inaccessible from your browser as it displays your Wordpress version!');
                 return '<span class="acx-icon-alert-critical">'.$m.'</span>'.'<br/>';
             }
             //@ safe
             else
             {
-                $m .= ' '.__('Although the file was found proper file permissions are set in order to make it innaccessible from the browser window.');
+                if (0 == $fp){
+                    // chmod  000
+                    $fp = '0000';
+                }
+                $m .= ' '.sprintf(__('The file has proper permissions set (0%s) and is inaccessible from website users.'), $fp);
                 return '<span class="acx-icon-alert-success">'.$m.'</span>'.'<br/>';
             }
         }

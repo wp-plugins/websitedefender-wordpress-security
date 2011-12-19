@@ -1,7 +1,7 @@
 <?php
 /*
  * Displays info about WSD
- * 
+ *
  * @package ACX
  * @since v0.1
  */
@@ -15,7 +15,7 @@ if (!ACX_SHOULD_LOAD) { exit; }
 <div class="acx-section-box">
 
     <p class="wsd-inside" style="margin-top: 0px;">
-    <?php echo __('WebsiteDefender.com is built on web application scanning technology from <a href="http://www.acunetix.com/" target="_blank">Acunetix</a>, a pioneer in website security. 
+    <?php echo __('WebsiteDefender.com is built on web application scanning technology from <a href="http://www.acunetix.com/" target="_blank">Acunetix</a>, a pioneer in website security.
         <a href="http://www.websitedefender.com" target="_blank">WebsiteDefender</a> requires no installation, no learning curve and no maintenance. Above all, there is no impact on site performance!
         WebsiteDefender regularly scans and monitors your WordPress website/blog effortlessly, efficiently, easily and is available for Free! Start scanning your WordPress website/blog against malware and hackers, absolutely free!'); ?>
     </p>
@@ -25,11 +25,11 @@ if (!ACX_SHOULD_LOAD) { exit; }
          the security of your website, giving you easy to understand solutions to keep your website safe, always! WebsiteDefender\'s enhanced
          WordPress Security Checks allow it to optimise any threats on a blog or site powered by WordPress.');*/ ?>
     </p>
-    
+
     <p class="wsd-inside">
         <?php echo '<strong>'.__('With WebsiteDefender you can:').'</strong>'; ?>
     </p>
-    
+
     <ul class="acx-common-list">
         <li><span class="acx-icon-alert-success"><?php echo __('Detect malware present on your website');?></span></li>
         <li><span class="acx-icon-alert-success"><?php echo __('Audit your website for security issues');?></span></li>
@@ -51,3 +51,4 @@ if (!ACX_SHOULD_LOAD) { exit; }
     </p>
 
 </div>
+

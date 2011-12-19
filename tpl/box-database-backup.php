@@ -1,7 +1,7 @@
 <?php
 /*
  * Displays the Database Backup Tool
- * 
+ *
  * @package ACX
  * @since v0.1
  */
@@ -27,6 +27,12 @@ if (!ACX_SHOULD_LOAD) { exit; }
  */
 $wsd_bckDirPath = ACX_PLUGIN_DIR.'backups/';
 if (is_dir($wsd_bckDirPath) && is_writable($wsd_bckDirPath)) :
+
+    if (function_exists('wp_create_nonce')){
+        $wsdnonce = wp_create_nonce();
+    }
+    else {$wsdnonce = '';}
+
 ?>
 
 
@@ -35,6 +41,13 @@ if (is_dir($wsd_bckDirPath) && is_writable($wsd_bckDirPath)) :
     {
         if (isset($_POST['wsd_db_backup']))
         {
+            if (function_exists('check_admin_referer')) {
+				check_admin_referer('wsdwps-do-db-backup');
+                $_nonce = $_POST['_wsdw_db_wpnonce'];
+                if (empty($_nonce) || ($_nonce <> $wsdnonce)){
+                    wp_die("Invalid request!");
+                }
+			}
 
             if ('' <> ($fname = acx_backupDatabase())) {
                 echo '<p class="acx-info-box">';
@@ -54,6 +67,11 @@ if (is_dir($wsd_bckDirPath) && is_writable($wsd_bckDirPath)) :
 ?>
 <div class="acx-section-box">
     <form action="#bckdb" method="post">
+	<?php if (function_exists('wp_nonce_field')) {
+        echo '<input type="hidden" name="_wsdw_db_wpnonce" value="'.$wsdnonce.'" />';
+        wp_nonce_field('wsdwps-do-db-backup');
+        }
+        ?>
         <input type="hidden" name="wsd_db_backup"/>
         <input type="submit" class="button-primary" name="backupDatabaseButton" value="<?php echo __('Backup now!');?>"/>
     </form>

@@ -1,7 +1,7 @@
 <?php
 /*
  * Displays the Password Strength Tool
- * 
+ *
  * @package ACX
  * @since v0.1
  */
@@ -20,17 +20,17 @@ if (!ACX_SHOULD_LOAD) { exit; }
 <table id="wsd_pwdtool">
         <tr valign="top">
             <td>
-                <form name="commandForm">
-                    Type password: <input type="password" size="30" maxlength="50" name="password" onkeyup="testPassword(this.value);" value="" />
+                <form name="commandForm" onsubmit="javascript:return false;">
+                    <?php echo __('Type password:');?> <input type="password" size="30" maxlength="50" name="password" onkeyup="testPassword(this.value);" value="" />
                     <br/>
-                    <span style="color:#808080">6 characters minimum</span>
+                    <span style="color:#808080"><?php echo __('6 characters minimum');?></span>
                 </form>
             </td>
             <td style="padding-left: 6px;">
-                <span>Password Strength:</span>
+                <span><?php echo __('Password Strength:');?></span>
                 <div id="Words">
                     <p class="indicator"></p>
-                    <p><strong>Begin Typing</strong></p>
+                    <p><strong><?php echo __('Begin Typing');?></strong></p>
                 </div>
             </td>
         </tr>
@@ -38,5 +38,5 @@ if (!ACX_SHOULD_LOAD) { exit; }
 
     <br/>
     <br/><hr class="line" size="2" color="#EBEBEB" />
-    <br/><span>Example of a strong password:</span> <span style="color:#f00;"><?php echo make_password(15);?></span>
+    <br/><span><?php echo __('Example of a strong password:');?></span> <span style="color:#f00;"><?php echo make_password(15);?></span>
 </div>

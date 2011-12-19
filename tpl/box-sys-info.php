@@ -1,7 +1,7 @@
 <?php
 /*
  * Displays the System Information box
- * 
+ *
  * @package ACX
  * @since v0.5
  */

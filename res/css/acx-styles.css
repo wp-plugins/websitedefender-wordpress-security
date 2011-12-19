@@ -33,7 +33,7 @@
 #acx-wrapper .metabox-holder { overflow: hidden; min-height: 1px;}
 
 #acx-wrapper a { color: #21759B; }
-#acx-wrapper a:active, 
+#acx-wrapper a:active,
 #acx-wrapper a:hover { color: #d00000; text-decoration: underline; }
 
 #acx-wrapper p { font-size: 1em; }
@@ -135,7 +135,8 @@
 #acx-wrapper .acx-info-box {
 	margin: 7px 7px; padding: 0.2em 0.2em 0.2em 2.2em;
 	font-family: Verdana, Geneva, sans-serif; font-size: 1em; color: #d00000;
-	background: #FFC url('../images/icon-info.png') no-repeat 5px 50%; border: solid 1px #FC0;
+	/* background: #FFC url('../images/icon-info.png') no-repeat 5px 50%; border: solid 1px #FC0;*/
+	background: #ebebeb url('../images/icon-info.png') no-repeat 5px 50%; border: solid 1px #ccc;
 }
 
 #acx-wrapper .acx-info-box-noicon { background-image: none; }
@@ -178,4 +179,9 @@
 .wsd-inside { overflow: hidden; min-height: 1px; }
 #acx_wsd h4 { margin: 10px 0 !important; }
 
+.wswdwp-tooltip {
+    cursor: pointer;
+    margin-left: 15px;
+    color: #21759B;
+}
 
