@@ -1,0 +1,95 @@
+
+/** General Styling **/
+
+.wsdplugin_content
+{
+
+}
+
+.wsdplugin_content .wsdplugin_status_page_ico {
+	background: url('../img/logo.png') no-repeat scroll center center transparent;
+}
+.wsdplugin_content .wsdplugin_alerts-page-ico {
+	background: url('../img/alerts-page-ico.png') no-repeat scroll center center transparent;
+}
+
+
+
+/*
+ * Error box
+ */
+.wsdplugin_content .wsdplugin_error_box { }
+.wsdplugin_content .wsdplugin_error_box p { overflow: hidden; }
+.wsdplugin_content .wsdplugin_error_box p strong { display: block; float: left; }
+.wsdplugin_content .wsdplugin_error_box p a.dismiss { float: right; display: block; }
+
+
+.wsdplugin_content .wsdplugin_info_box {
+	background-color: #E0E9F9;
+	border-color: #98BCF9;
+}
+.wsdplugin_content .wsdplugin_info_box p { overflow: hidden; }
+.wsdplugin_content .wsdplugin_info_box p strong { display: block; float: left; }
+.wsdplugin_content .wsdplugin_info_box p a.dismiss { float: right; display: block; }
+
+
+
+/*
+ * INFO / ERROR boxes
+ */
+.wsdplugin_message
+{
+	margin: 5px 0 15px;
+	padding: 0 0.6em;
+	border-radius: 3px;
+	border: 1px solid;
+}
+.wsdplugin_message.wsdplugin_message_warning
+{
+	background-color: #FFFFE0;
+	border-color: #E6DB55;
+}
+.wsdplugin_message.wsdplugin_message_error
+{
+	background-color: #FCC2C2;
+	border-color: #CC0000;
+}
+.wsdplugin_message.wsdplugin_message_success
+{
+	background-color: #FFFFE0;
+	border-color: #E6DB55;
+	color: #006600;
+}
+.wsdplugin_message p
+{
+	margin: 0.5em 0;
+	padding: 2px;
+}
+
+
+.wsdplugin_sad_face {
+	width: 24px;
+	height: 24px;
+	background: transparent url('../img/sad24.png') left top no-repeat;
+	margin-bottom: 3px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.wsdplugin_warning_trial_expired {
+	width: 32px;
+	height: 32px;
+	background: transparent url('../img/warning.png') left top no-repeat;
+	margin-bottom: 3px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.wsdplugin_warning_small {
+	width: 16px;
+	height: 16px;
+	background: transparent url('../img/warning-small.png') left top no-repeat;
+	margin-bottom: 3px;
+	display: inline-block;
+	vertical-align: middle;
+}
