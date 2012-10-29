@@ -39,7 +39,7 @@ function wsdplugin_database_backup_new()
 	$time = gmdate("m-j-Y-h-i-s", time());
 	$rand = md5($time . mt_rand(0, 999999999));
 	$filePath = "{$location}bck_{$time}_{$rand}.sql";
-	$handle = fopen($filePath, 'w');
+	$handle = @fopen($filePath, 'w');
 
 	if ($handle === false)
 		throw new Exception(__('Cannot save the backup.'));
@@ -170,7 +170,10 @@ function wsdplugin_change_prefix_config_writable($path = null)
 {
 	if ($path === null) $path = wsdplugin_change_prefix_config_path();
 
-	$handle = fopen($path, 'a+');
+	if (!is_file($path))
+		return false;
+
+	$handle = @fopen($path, 'a+');
 	if ($handle !== false)
 	{
 		fclose($handle);
@@ -183,7 +186,7 @@ function wsdplugin_change_prefix_verify_config($path)
 	global $table_prefix;
 
 	$foundPrefix = false;
-	$handle = fopen($path, 'r');
+	$handle = @fopen($path, 'r');
 
 	if ($handle === false || fseek($handle, 0, SEEK_SET) !== 0)
 		return false;
@@ -217,6 +220,13 @@ function wsdplugin_change_prefix($configPath, $newPrefix)
 
 	if ($table_prefix === $newPrefix)
 		return;
+
+	if (strlen($newPrefix) < 0) {
+		throw new Exception(__('The table prefix cannot be empty.'));
+	}
+	if (strlen($newPrefix) > 15) {
+		throw new Exception(__('The table prefix cannot exceed 15 characters.'));
+	}
 
 	wsdplugin_change_prefix_update_db($newPrefix);
 	wsdplugin_change_prefix_update_config($configPath, $newPrefix);
@@ -252,6 +262,10 @@ function wsdplugin_change_prefix_update_db($newPrefix)
 function wsdplugin_change_prefix_update_config($configPath, $newPrefix)
 {
 	$newContent = array();
+
+	if (!is_file($configPath))
+		return false;
+
 	$handle = fopen($configPath, 'a+');
 
 	if (fseek($handle, 0, SEEK_SET) !== 0)
@@ -507,7 +521,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 							?>
 
 							<form method="post" enctype="application/x-www-form-urlencoded">
-								<p>Change the current:<input name="new-prefix" type="text" value="<?php global $table_prefix; echo $table_prefix;?>"/> table prefix to something different.</p>
+								<?php
+									$html = '<div class="wsdplugin_message wsdplugin_message_warning"><p>'
+									. __('<strong>Maximum prefix length is of 15 characters.</strong>')
+									. '</p></div>';
+
+									echo wptexturize($html);
+								?>
+
+								<p>Change the current:<input name="new-prefix" type="text" maxlength="15" value="<?php global $table_prefix; echo $table_prefix;?>"/> table prefix to something different.</p>
 								<p>Allowed characters: all latin alphanumeric as well as the _ (underscore).</p>
 								<?php if ($dbRights['rightsEnough']) { ?>
 								<input type="submit" name="change-prefix" class="button-primary" value="Start renaming"/>

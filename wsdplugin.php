@@ -3,7 +3,7 @@
     Plugin Name: WebsiteDefender WordPress Security
     Plugin URI: http://www.websitedefender.com/websitedefender-wordpress-security-plugin/
     Description: The WebsiteDefender WordPress Security plugin is the ultimate must-have tool when it comes to WordPress security. The plugin is free and monitors your website for security weaknesses that hackers might exploit and tells you how to easily fix them.
-    Version: 1.0
+    Version: 1.0.1
     Author: WebsiteDefender
     Author URI: http://websitedefender.com/
     License: GPLv2 or later
@@ -29,7 +29,7 @@ function wsdplugin_init()
 
     if (is_admin() && current_user_can('administrator'))
     {
-        if(isset($_GET['wsdplugin_download_agent_now']))
+        if(isset($_GET['download_agent_now']))
         {
             $agent_name = wsdplugin_Handler::get_option('WSD-AGENT-NAME', FALSE);
             $agent_data = wsdplugin_Handler::get_option('WSD-AGENT-DATA', FALSE);
@@ -75,10 +75,13 @@ function wsdplugin_admin_init()
 	    define('wsdplugin_WSD_PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
 	    define('wsdplugin_WSD_PLUGIN_BASE_PATH', plugin_dir_path(__FILE__));
 
-		wsdplugin_security::run_fixes();
 		wsdplugin_security::run_checks();
 		wsdplugin_NotificationEngine::run();
     }
+	else
+	{
+		wsdplugin_security::run_fixes();
+	}
 }
 
 function wsdplugin_createAdminMenu()
@@ -95,7 +98,7 @@ function wsdplugin_createAdminMenu()
 	return false;
 }
 
-function wsdplugin_helper($page = 'status')
+function wsdplugin_helper()
 {
 	$result = wsdplugin_Handler::check();
 	if ($result === false)
@@ -108,7 +111,7 @@ function wsdplugin_helper($page = 'status')
 	}
 	if (in_array('agent-install-error', wsdplugin_Handler::$problems))
 	{
-		echo '<div class="updated fade"><p>Agent could not be saved. Click <a style="font-weight: bold;" target="_blank" href="admin.php?page=wsdplugin_dashboard&wsdplugin_download_agent_now">here</a> to download the agent.</p></div>';
+		echo '<div class="updated fade"><p>Agent could not be saved. Click <a style="font-weight: bold;" target="_blank" href="admin.php?page=wsdplugin_dashboard&download_agent_now">here</a> to download the agent.</p></div>';
 	}
 	return true;
 }
@@ -120,8 +123,7 @@ function wsdplugin_pageDashboard()
 
 function wsdplugin_pageAlerts()
 {
-	if (wsdplugin_helper('alerts'))
-	{
+	if (wsdplugin_helper()) {
 		include 'page_alerts.php';
 	}
 }

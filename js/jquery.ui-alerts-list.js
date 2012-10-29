@@ -267,7 +267,7 @@ $.widget('ui.wsdplugin_alertsList',
 			wsdplugin_logger.debug(this.widgetName + '._onBulkAction', action, alertIds);
 			this._doAction(action, alertIds);
 		}
-		else if (action == 'ignore')
+		else if (action == 'ignore' || action == 'resolve')
 		{
 			alert('Select an alert to ' + action + '.');
 		}

@@ -84,6 +84,13 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 == Changelog ==
 
+= 1.0.1 =
+* False positive alert for WordPress readme fixed
+* Fixed no alert pop up message shows when no WebsiteDefender alert is selected
+* Limited db prefix to 15 characters
+* Fixed issue where database tool generated an empy wp-config.php file
+
+
 = 1.0 =
 * Complete rewrite of the plugin
 * New user friendly UI

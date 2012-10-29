@@ -98,7 +98,7 @@ HTML;
 			break;
 		case 'readme-in-root':
 			$result['title'] = __('Readme file found in the root directory');
-			$result['detail'] = __('Delete the file readme.txt from your WordPress root directory. If this file is not deleted a malicious user can use such information to craft an attack against your WordPress.');
+			$result['detail'] = __('Delete the file readme.html from your WordPress root directory. If this file is not deleted a malicious user can use such information to craft an attack against your WordPress.');
 			break;
 		case 'access-rights':
 			$result['title'] = __('User has too many rights for database: ') . implode(', ', $data[2]);

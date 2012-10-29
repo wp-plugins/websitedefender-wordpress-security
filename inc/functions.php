@@ -1010,9 +1010,8 @@ class wsdplugin_NotificationEngine
 											 "fs_wp_config_php"        => is_file(ABSPATH.'wp-config.php') ? fileperms(ABSPATH.'wp-config.php') : 0,
 											 "fs_wp_admin_htaccess"    => is_file(ABSPATH.'wp-admin/.htaccess') ? fileperms(ABSPATH.'wp-admin/.htaccess') : 0,
 											 "fs_wp_admin"             => is_dir(ABSPATH."wp-admin") ? fileperms(ABSPATH."wp-admin") : 0,
-											 "fs_wp_admin"             => is_dir(ABSPATH."wp-content") ? fileperms(ABSPATH."wp-content") : 0,
-											 "fs_wp_admin"             => is_dir(ABSPATH."wp-includes") ? fileperms(ABSPATH."wp-includes") : 0,
-											 "fs_wp_admin"             => is_dir(ABSPATH."wp-admin") ? fileperms(ABSPATH."wp-admin") : 0,
+											 "fs_wp_content"             => is_dir(ABSPATH."wp-content") ? fileperms(ABSPATH."wp-content") : 0,
+											 "fs_wp_includes"             => is_dir(ABSPATH."wp-includes") ? fileperms(ABSPATH."wp-includes") : 0,
 
                                              "sys_os"                  => PHP_OS,
                                              "sys_server"              => $_SERVER["SERVER_SOFTWARE"],
@@ -1109,7 +1108,7 @@ class wsdplugin_security
         else self::alert('no-htaccess-wp-admin');
 
         //this should be tested if can be downloaded
-        if(!is_file(ABSPATH.'readme.html'))self::alert('readme-in-root', 2);
+        if(is_file(ABSPATH.'readme.html'))self::alert('readme-in-root', 2);
         else self::alert('readme-in-root');
     }
 

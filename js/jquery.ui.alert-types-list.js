@@ -199,7 +199,7 @@ $.widget('ui.wsdplugin_alertTypesList',
 			wsdplugin_logger.info(this.widgetName + '._onBulkAction', action, alertTypes);
 			this._doAction(action, alertTypes);
 		}
-		else if (action == 'ignore')
+		else if (action == 'ignore' || action == 'resolve')
 		{
 			alert('Select an alert to ' + action + '.');
 		}
