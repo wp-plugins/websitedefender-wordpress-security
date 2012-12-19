@@ -87,7 +87,7 @@ $.widget('ui.wsdplugin_local_alerts',
 				.appendTo(tr);
 
 			// Entry time
-			$(document.createElement('td')).css({'width': '100px', 'text-align': 'right'})
+			$(document.createElement('td')).css({'width': '140px', 'text-align': 'right'})
 				.html(item.time)
 				.appendTo(tr);
 

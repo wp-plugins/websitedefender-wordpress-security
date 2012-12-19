@@ -61,7 +61,6 @@ function wsdplugin_make_password($password_length)
 <div class="wrap wsdplugin_content">
 
     <div class="wsdplugin_page_title">
-        <div class="icon32 wsdplugin_status_page_ico"><br></div>
         <h2>Strong Password Generator</h2>
     </div>
 

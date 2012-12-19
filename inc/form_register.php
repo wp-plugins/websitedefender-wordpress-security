@@ -10,7 +10,7 @@ function wsdplugin_render_newuser_form($userName, $name, $surname, $message, $er
 </style>
 
 <div style="margin: 30px 15px 20px 15px; padding: 0 0.6em; font-weight: bold;">
-	<p style="margin: 0.5em 0;padding: 2px;">Do you want to have the best WordPress security? Of course you do! Simply fill in your details below
+	<p style="margin: 0.5em 0;padding: 2px;" class="wsdplugin_special_text">Do you want to have the best WordPress security? Of course you do! Simply fill in your details below
 		so that you can start your 15 day WebsiteDefender trial. Join the community of thousands of WordPress users that
 		are already enjoying the added benefits of daily security scans and malware checks!</p>
 </div>

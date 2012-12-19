@@ -412,7 +412,7 @@ $.widget('ui.wsdplugin_alertsList',
 					);
 
 				// Download Link
-				var $downloadLink = $('a[href=#download-restore-file]', slidingRow);
+				var $downloadLink = $('a[href="#download-restore-file"]', slidingRow);
 				if ($downloadLink.length > 0) {
 					$downloadLink.attr('href', 'https://dashboard.websitedefender.com/download-restore-file.php?tid='
 						+ this._targetId + '&aid=' + item.id.substr(item.id.indexOf('_') + 1));
@@ -502,7 +502,7 @@ $.widget('ui.wsdplugin_alertsList',
 
 
 			// Entry time
-			$(document.createElement('td')).css({'width': '100px', 'text-align': 'right'}).html(item.entrytime).appendTo(tr);
+			$(document.createElement('td')).css({'width': '100px', 'text-align': 'right', 'vertical-align': 'middle'}).html(item.entrytime).appendTo(tr);
 
 			if (item.firsttime != item.entrytime)
 			{
@@ -541,13 +541,13 @@ $.widget('ui.wsdplugin_alertsList',
 		$('.tablenav-pages', this.element).parent().hide();
 
 		if (currentPage > 1) {
-			paginationLinks.find('a[href=#first]').removeClass('disabled')
+			paginationLinks.find('a[href="#first"]').removeClass('disabled')
 				.unbind('click')
 				.bind('click', function() {
 					wsdplugin_uh.newLocation({p: true, v: true, s: true, t: true, f: true, o: 0}, true);
 					return false;
 				});
-			paginationHost.find('a[href=#back]').removeClass('disabled')
+			paginationHost.find('a[href="#back"]').removeClass('disabled')
 				.unbind('click')
 				.bind('click', function() {
 					wsdplugin_uh.newLocation({p: true, v: true, s: true, t: true, f: true, o: self._offset - self.options.itemsPerPage}, true);
@@ -556,13 +556,13 @@ $.widget('ui.wsdplugin_alertsList',
 			showPagination = true;
 		}
 		if (currentPage < pageCount) {
-			paginationHost.find('a[href=#next]').removeClass('disabled')
+			paginationHost.find('a[href="#next"]').removeClass('disabled')
 				.unbind('click')
 				.bind('click', function() {
 					wsdplugin_uh.newLocation({p: true, v: true, s: true, t: true, f: true, o: self._offset + self.options.itemsPerPage}, true);
 					return false;
 				});
-			paginationHost.find('a[href=#last]').removeClass('disabled')
+			paginationHost.find('a[href="#last"]').removeClass('disabled')
 				.unbind('click')
 				.bind('click', function() {
 					wsdplugin_uh.newLocation({p: true, v: true, s: true, t: true, f: true, o: (pageCount - 1) * self.options.itemsPerPage}, true);

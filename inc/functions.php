@@ -203,14 +203,14 @@ class wsdplugin_Handler
 
 </style>
 
-<div class="wsdplugin_content">
+<div class="wrap wsdplugin_content">
 
 <div class="wsdplugin_message wsdplugin_message_error" style="padding: 4px 10px;">
 
 {$error}
 
 <div style="height: 30px;"></div>
-If the problem persists you may click <a href="admin.php?page=wsdplugin_dashboard&reset">here</a> to reset the plugin or
+If the problem persists you may click <a href="admin.php?page=wsdplugin_dashboard&wsdplugin_reset">here</a> to reset the plugin or
 <a href="{$_SERVER['REQUEST_URI']}">here</a> to refresh the page. You can also contact <a href="mailto:support@websitedefender.com">WebsiteDefender Support</a>.
 
 </div>

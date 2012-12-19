@@ -19,7 +19,7 @@ wp_enqueue_script('wsdplugin_js_logger', wsdplugin_Utils::jsUrl('logger.js'), ar
 wp_enqueue_script('wsdplugin_js_request', wsdplugin_Utils::jsUrl('request.js'), array('jquery'), '1.0');
 wp_enqueue_script('wsdplugin_js_common', wsdplugin_Utils::jsUrl('common.js'), array('jquery'), '1.0');
 wp_enqueue_script('wsdplugin_js_ui_main', wsdplugin_Utils::jsUrl('jquery.ui.main.js'), array('jquery'), '1.0');
-wp_enqueue_script('wsdplugin_js_ui_status', wsdplugin_Utils::jsUrl('jquery.ui.status.js'), array('jquery-ui-widget'), '1.0');
+//wp_enqueue_script('wsdplugin_js_ui_status', wsdplugin_Utils::jsUrl('jquery.ui.status.js'), array('jquery-ui-widget'), '1.0');
 wp_enqueue_script('wsdplugin_js_ui_website_detail', wsdplugin_Utils::jsUrl('jquery.ui.website-detail.js'), array(), '1.0');
 wp_enqueue_script('wsdplugin_js_ui_alert_list', wsdplugin_Utils::jsUrl('jquery.ui-alerts-list.js'), array(), '1.0');
 wp_enqueue_script('wsdplugin_js_ui_types', wsdplugin_Utils::jsUrl('jquery.ui.alert-types-list.js'), array(), '1.0');
@@ -35,7 +35,7 @@ $hash       = get_option('WSD-HASH');
 <div class="wrap wsdplugin_content">
 
 <!-- Overlay shown whenever a request is in progress -->
-<div class="wsdplugin_request_overlay" style="display: none; position: absolute; width: 100%; height: 100%; z-index: 10000">
+<div class="wsdplugin_request_overlay" style="display: none; position: absolute; width: 100%; height: 100%; z-index: 10000; margin-top: 24px;">
 
     <h3 style="display: block; float: right; margin-top: 30px; margin-right: 20px; color: #000; opacity: 1; z-index: 200000;">Loading content...</h3>
     <div style="background-color: #000; opacity: .0; width: 100%; height: 100%;"></div>
@@ -46,29 +46,16 @@ $hash       = get_option('WSD-HASH');
 <div class="wsdplugin_website_detail">
 
 <div class="wsdplugin_page_title">
-    <div class="icon32 wsdplugin_status_page_ico"><br></div>
-    <h2 style="padding-right: 0;">Welcome to your WebsiteDefender Alert Center <a class="add-new-h2" href="#refresh">Refresh</a>
-	    <span style="display:block; float:right; font-weight: normal; color: #CC0000; font-size: .5em;">
-		    <span id="wsdplugin-current-user" style="text-decoration: none; color: #CC0000; cursor: default; float: right;overflow: hidden; padding-left: 5px; padding-right: 5px; border-radius: 3px;;">
-	            <span id="wsdplugin-current-user-name" style=" text-align: right; display: block; clear: both;"><?php echo htmlentities(get_option('WSD-USER')); ?></span>
-			    <div id="wsdplugin-current-user-menu">
-	                <ul>
-	                    <li><a href="admin.php?page=wsdplugin_dashboard&reset">Reset plugin settings</a></li>
-	                </ul>
-	            </div>
-            </span>
-
-	    </span>
-    </h2>
+    <div id="uinfo">
+        <span id="wsdplugin-current-user-name"><?php echo htmlentities(get_option('WSD-USER')); ?></span>
+        <div id="wsdplugin-current-user-menu">
+            <ul>
+                <li><a href="admin.php?page=wsdplugin_dashboard&wsdplugin_reset">Reset plugin settings</a></li>
+            </ul>
+        </div>
+    </div>
+    <h2><span>Welcome to your WebsiteDefender Alert Center</span> <a class="add-new-h2" href="#refresh">Refresh</a></h2>
 </div>
-<style type="text/css">
-    #wsdplugin-current-user:hover {background-color: #F9F9F9;box-shadow: 1px 1px 4px #888888;}
-    #wsdplugin-current-user { overflow: hidden;}
-    #wsdplugin-current-user-menu { margin-top: 10px; display: none; float: left; clear: both; }
-    #wsdplugin-current-user:hover #wsdplugin-current-user-name { border-bottom: solid 1px #dadada; }
-    #wsdplugin-current-user:hover #wsdplugin-current-user-menu {display: block;z-index: 800000;padding: 0 10px 10px 0px !important;margin-right: 7px !important;}
-    #wsdplugin-current-user-menu ul {margin: 0 0 !important; padding: 0 0 !important; display: block;}
-</style>
 
 <?php if (get_option('WSD-SCANTYPE') == 'WSDFREE') {?>
 
@@ -77,7 +64,7 @@ $hash       = get_option('WSD-HASH');
 	<div style="float: left;margin-top: 4px">
 		<span class="wsdplugin_warning_trial_expired"></span>
 	</div>
-    <div style="float: left; display: block; margin-left: 10px">
+    <div style="float: left; display: block; margin-left: 10px" class="wsdplugin_special_text">
         Your trial has expired and your website is no longer being scanned daily for malware and security issues <span class="wsdplugin_sad_face">&nbsp;</span>
 		<br>
 		Continue securing your WordPress for only $99.95 a year. Log into your WebsiteDefender dashboard and click on the Buy Now link.
@@ -93,50 +80,8 @@ $hash       = get_option('WSD-HASH');
     </p>
 </div>
 
-<!-- Status Page -->
-<div class="wsdplugin_page_status">
-
-    <div class="wsdplugin_status_box wsdplugin_status_malware">
-		<span>Malware:</span>
-	    <span>-</span>
-	</div>
-
-	<div class="wsdplugin_status_box_spacer" style="">&nbsp;</div>
-
-    <div class="wsdplugin_status_box wsdplugin_status_dns">
-        <span>DNS:</span>
-		<span class="wsdplugin_status_bad">-</span>
-	</div>
-
-    <div class="wsdplugin_status_box_spacer" style="">&nbsp;</div>
-
-    <div class="wsdplugin_status_box wsdplugin_status_scan">
-        <span>Last Scan:</span>
-        <span>-</span>
-    </div>
-
-    <div class="wsdplugin_status_box_spacer" style="">&nbsp;</div>
-
-    <div class="wsdplugin_status_box wsdplugin_status_time">
-        <span>Average Response Time:</span>
-        <span>-</span>
-    </div>
-
-    <div class="wsdplugin_status_box_spacer" style="">&nbsp;</div>
-
-    <div class="wsdplugin_status_box wsdplugin_status_target">
-        <span>Target ID:</span>
-        <span>-</span>
-    </div>
-
-
-</div>
-<!-- Status Page -->
-
-
 <!-- Alerts Page -->
 <div class="wsdplugin_page_alerts" style="display: none">
-
 
 <div class="alignright actions wsdplugin_alerts_show_view" style="float: right; margin-top: 9px;">
 	<span>View</span>
@@ -149,9 +94,8 @@ $hash       = get_option('WSD-HASH');
 </div>
 
 
-
 <!-- Current Alerts -->
-<div class="wsdplugin_page_alert_types_current" style="display: none">
+<div class="wsdplugin_page_alert_types_current" style="display: none;">
 
     <!-- Action Bar -->
     <div class="wsdplugin_page_alerts_action_bar" style="float: left;">
@@ -490,7 +434,6 @@ $hash       = get_option('WSD-HASH');
 </div>
 <!-- wsdplugin_page_alerts -->
 
-
 </div>
 <!-- wsdplugin_website_detail -->
 
@@ -545,8 +488,6 @@ $hash       = get_option('WSD-HASH');
                     displayAlertCount: false,
                     enableDrillDown: false
                 });
-
-	    $('.wsdplugin_content .wsdplugin_page_status').wsdplugin_status({targetId: <?php echo "'{$targetId}'";?>});
     });
 
 </script>

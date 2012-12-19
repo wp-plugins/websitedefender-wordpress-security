@@ -53,3 +53,7 @@
 	border-right: 1px solid #fff;
 	margin-left: 10px;
 }
+.wsdplugin_page_status_horizontal .wsdplugin_status_box span:first-child {
+    display: inline-block;
+    width: 180px;
+}

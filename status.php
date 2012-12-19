@@ -38,7 +38,6 @@ wp_enqueue_script('wsdplugin_js_ui_status', wsdplugin_Utils::jsUrl('jquery.ui.st
 
 
         <div class="wsdplugin_page_title">
-            <div class="icon32 wsdplugin_status_page_ico"><br></div>
             <h2>Status <a class="add-new-h2" href="#refresh">Refresh</a> </h2>
         </div>
 

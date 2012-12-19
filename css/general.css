@@ -93,3 +93,76 @@
 	display: inline-block;
 	vertical-align: middle;
 }
+
+
+
+/*
+* auth menu
+*/
+#wsdplugin_advert a, #wsdplugin_advert img { border: none 0; outline: none 0;}
+.wsdplugin_website_detail { overflow: hidden; float: none; clear: both;}
+.wsdplugin_page_title { overflow: hidden; display: block; clear: both; }
+
+.wsdplugin_page_title h2 {
+    background: url("../img/logo.png") no-repeat scroll 0 50% transparent;
+    padding-left: 45px;
+}
+.wsdplugin_page_title #uinfo {
+    float: right;
+    margin: 10px 10px;
+    cursor: pointer;
+    padding: 5px 0;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    /*width: 180px;*/
+    overflow: hidden;
+    text-align: right;
+}
+.wsdplugin_page_title #uinfo #wsdplugin-current-user-name { display: block; color: #CC0000; padding-right: 7px; padding-left: 7px; }
+.wsdplugin_page_title #uinfo #wsdplugin-current-user-menu{
+    width: 180px;
+    display: none;
+    margin: 5px 0 0 0 !important;
+    padding: 5px 0;
+    background-color: #F9F9F9;
+    border: 1px solid #DFDFDF;
+    border-top: none 0;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+.wsdplugin_page_title #uinfo:hover{
+    background-color: #F9F9F9;
+    border: 1px solid #DFDFDF;
+    border-radius: 3px;
+}
+
+.wsdplugin_page_title #uinfo:hover #wsdplugin-current-user-menu{
+    position: absolute; z-index: 9888998;
+    display: block; clear: both;
+    border-top: solid 1px #dadada;
+    right: 25px;
+}
+.wsdplugin_page_title #uinfo:hover #wsdplugin-current-user-menu ul,
+.wsdplugin_page_title #uinfo:hover #wsdplugin-current-user-menu ul li { margin: 0 0; padding: 0 0; width: 100%; list-style-type: none; list-style-position: outside;}
+.wsdplugin_page_title #uinfo:hover #wsdplugin-current-user-menu ul li { padding: 7px 5px; text-align: left !important; }
+.wsdplugin_page_title #uinfo:hover #wsdplugin-current-user-menu ul li a { display: block; margin: 3px 5px;}
+
+
+.wsdplugin_page_title .wsdplugin_error_box { clear: both; }
+.wsdplugin_page_alerts { float: none; clear: both;}
+
+.go-pro {
+    width: 156px; height: 38px;
+    float: left; display: block;
+    background: url('../img/btn-pro.png') no-repeat 0 0;
+}
+
+.wsdplugin_special_text {
+    font-family: 'HelveticaNeue-Light','Helvetica Neue Light','Helvetica Neue',sans-serif; font-size: 15px; line-height: 20px;
+}
+
+
+
+
+

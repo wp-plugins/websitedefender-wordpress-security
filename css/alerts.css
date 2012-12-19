@@ -119,7 +119,7 @@
 .wsdplugin_content .wsdplugin_alert_section_solution { margin-bottom: 20px; }
 .wsdplugin_content .wsdplugin_alert_section_reference h3 { border-bottom: 1px solid #CCCCCC; }
 .wsdplugin_content .wsdplugin_alert_section_body { margin-bottom: 20px; }
-.wsdplugin_content .wsdplugin_alert_section_body td.wsdplugin_title { }
+.wsdplugin_content .wsdplugin_alert_section_body td.wsdplugin_title { vertical-align: middle; }
 .wsdplugin_content .wsdplugin_alert_section_body td.wsdplugin_title.wsdplugin_strong a { font-weight: bold; }
 .wsdplugin_content .wsdplugin_alert_section_body td.alertDetailsTableTdValue { /*word-break: break-all; */}
 .wsdplugin_content .wsdplugin_alert_section_body td.alertDetailsTableTdValue pre { margin-top: 0; margin-bottom: 0; }

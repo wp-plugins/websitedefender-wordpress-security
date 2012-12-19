@@ -179,3 +179,4 @@ function wsdplugin_updatePassStrength(pass1, username, pass2)
 
 	indicator.text('Strong').addClass('strong');
 }
+

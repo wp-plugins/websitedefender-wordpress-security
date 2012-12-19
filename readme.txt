@@ -84,6 +84,11 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 == Changelog ==
 
+= 1.0.2 =
+* Added the Real Time Security Information section
+* Added Backup tab
+* Minor UI fixes
+
 = 1.0.1 =
 * False positive alert for WordPress readme fixed
 * Fixed no alert pop up message shows when no WebsiteDefender alert is selected

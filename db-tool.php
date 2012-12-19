@@ -36,7 +36,7 @@ function wsdplugin_database_backup_new()
 		throw new Exception(__('There are no tables in the database!'));
 
 	// Generate a new file name
-	$time = gmdate("m-j-Y-h-i-s", time());
+	$time = date('Y-m-d-H-i-s');
 	$rand = md5($time . mt_rand(0, 999999999));
 	$filePath = "{$location}bck_{$time}_{$rand}.sql";
 	$handle = @fopen($filePath, 'w');
@@ -379,7 +379,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 <div class="wrap wsdplugin_content dashboard-widgets-wrap">
 
 	<div class="wsdplugin_page_title">
-		<div class="icon32 wsdplugin_status_page_ico"><br></div>
 		<h2>Database Tool</h2>
 	</div>
 
@@ -551,16 +550,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 					<h3 class="hndle"><span>Database Backup Files</span></h3>
 					<div class="inside">
 
-						<div class="wsdplugin_warning_small" style="margin-right: 10px; float: left; margin-top: 6px"></div>
-						<div>
-                            Once you rename the WordPress database table prefix you can delete these backups from the
-							backup folder <strong><?php echo wptexturize(wsdplugin_database_backup_location()); ?></strong>.
-							Alternatively you can upload an empty index.php file to avoid directory listing and information disclosure.
-						</div>
+                        <div style="margin-top: 10px; margin-bottom: 10px; margin-left: 2px">
+                            <div style="margin-right: 5px; float: left; margin-top: 2px;" class="wsdplugin_warning_small"></div>
+                            <div style="padding-top: 2px">
+                                Once you rename the WordPress database table prefix you can delete these backups from the
+                                backup folder <strong><?php echo wptexturize(wsdplugin_database_backup_location()); ?></strong>.
+                                Alternatively you can upload an empty index.php file to avoid directory listing and information disclosure.
+                            </div>
+                        </div>
 
 						<div style="clear:both"></div>
 
-						<div style="margin-top: 10px">
+						<div style="margin-top: 20px">
 
 						<?php
 						$backupFiles = wsdplugin_database_backup_list();
@@ -572,10 +573,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 							foreach($backupFiles as $item)
 							{
 								$name = basename($item);
-								$time = array(substr($name, 10, 4), '-', substr($name, 4, 2), '-', substr($name, 7, 2), ' ',
-											  substr($name, 15, 2), substr($name, 18, 2), substr($name, 21, 2));
-								$time = implode('', $time);
-								$backupDate = new DateTime($time, new DateTimeZone('UTC'));
+								list($y, $m, $d, $h, $i, $s) = explode('-', substr($name, 4, 19));
+								$backupDate = date_create("$y-$m-$d $h:$i:$s");
 								$displayName = ($backupDate === false) ? $name : $backupDate->format('d M Y H:i:s');
 
 								echo '<a style="text-decoration: none" href="', htmlentities(wsdplugin_WSD_PLUGIN_BASE_URL . 'backups/' . basename($item)), '">',

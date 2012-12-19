@@ -3,25 +3,25 @@
     Plugin Name: WebsiteDefender WordPress Security
     Plugin URI: http://www.websitedefender.com/websitedefender-wordpress-security-plugin/
     Description: The WebsiteDefender WordPress Security plugin is the ultimate must-have tool when it comes to WordPress security. The plugin is free and monitors your website for security weaknesses that hackers might exploit and tells you how to easily fix them.
-    Version: 1.0.1
+    Version: 1.0.2
     Author: WebsiteDefender
     Author URI: http://websitedefender.com/
     License: GPLv2 or later
     Text Domain: WSDWP_SECURITY
     Domain Path: /languages
  */
-//!! So we can use the "user" related functions
-@require_once(ABSPATH.'wp-includes/pluggable.php');
-$wsdplugin_nonce = wp_create_nonce();
-//===============
 
 require_once("inc/settings.php");
 require_once("inc/functions.php");
 
+$wsdplugin_nonce = null;
 
 function wsdplugin_init()
 {
-    if (!is_admin())
+	global $wsdplugin_nonce;
+	$wsdplugin_nonce = wp_create_nonce();
+
+	if (!is_admin())
     {
         wsdplugin_security::run_fixes();
         wsdplugin_NotificationEngine::run();
@@ -50,7 +50,7 @@ TEXT
         }
 
 	    // Process plugin reset
-        if (isset($_GET['reset']))
+        if (isset($_GET['wsdplugin_reset']))
         {
             $options = array('WSD-USER', 'WSD-HASH', 'WSD-KEY', 'WSD-ID', 'WSD-NAME', 'WSD-SCANTYPE', 'WSD-SURNAME',
                              'WSD-WORKING', 'WSD-AGENT-DATA', 'WSD-AGENT-NAME', 'WSD-EXPIRATION');
@@ -59,13 +59,19 @@ TEXT
                 delete_option($option);
             }
 
-	        $index = strrpos($_SERVER['REQUEST_URI'], '&reset');
+	        $index = strrpos($_SERVER['REQUEST_URI'], '&wsdplugin_reset');
 	        header('Location: ' . substr($_SERVER['REQUEST_URI'], 0, $index));
             exit;
         }
     }
 }
 
+
+function wsdplugin_updateMenuItem()
+{
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('wsdplugin_js_common', wsdplugin_Utils::jsUrl('common.js'), array('jquery'), '1.0');
+}
 
 function wsdplugin_admin_init()
 {
@@ -75,7 +81,9 @@ function wsdplugin_admin_init()
 	    define('wsdplugin_WSD_PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
 	    define('wsdplugin_WSD_PLUGIN_BASE_PATH', plugin_dir_path(__FILE__));
 
-		wsdplugin_security::run_checks();
+        wsdplugin_updateMenuItem();
+
+        wsdplugin_security::run_checks();
 		wsdplugin_NotificationEngine::run();
     }
 	else
@@ -88,11 +96,29 @@ function wsdplugin_createAdminMenu()
 {
 	if (current_user_can('administrator') && function_exists('add_menu_page'))
 	{
+		$showPages = false;
+
+		if (defined('WP_ALLOW_MULTISITE'))
+		{
+			if (WP_ALLOW_MULTISITE && is_super_admin())
+				$showPages = true;
+		}
+		else {
+			$showPages = true;
+		}
+
 		$iconUrl = plugin_dir_url(__FILE__) . 'img/wsd-logo-small.png';
-		add_menu_page( __('WP Security'), __('WP Security'), 'edit_pages', 'wsdplugin_dashboard', 'wsdplugin_pageDashboard', $iconUrl);
-		add_submenu_page(__('wsdplugin_dashboard'), __('WebsiteDefender Security Alerts'), 'WebsiteDefender Security Alerts', 'edit_pages', 'wsdplugin_alerts', 'wsdplugin_pageAlerts');
-		add_submenu_page(__('wsdplugin_dashboard'), __('Strong Password Generator'), 'Strong Password Generator', 'edit_pages', 'wsdplugin_password', 'wsdplugin_pagePassword');
-		add_submenu_page(__('wsdplugin_dashboard'), __('Database Tool'), 'Database Tool', 'edit_pages', 'wsdplugin_database', 'wsdplugin_pageDatabase');
+
+        if ($showPages){
+            add_menu_page( __('WSD Security'), __('WSD Security'), 'edit_pages', 'wsdplugin_dashboard', 'wsdplugin_pageDashboard', $iconUrl);
+            add_submenu_page('wsdplugin_dashboard', 'Dashboard', 'Dashboard', 'edit_pages', 'wsdplugin_dashboard', 'wsdplugin_pageDashboard');
+        }
+		else { add_menu_page( __('WSD Security'), __('WSD Security'), 'edit_pages', 'wsdplugin_dashboard', 'wsdplugin_pagePassword', $iconUrl); }
+
+		if ($showPages) add_submenu_page(__('wsdplugin_dashboard'), __('Alerts'), 'Alerts', 'edit_pages', 'wsdplugin_alerts', 'wsdplugin_pageAlerts');
+		if ($showPages) add_submenu_page(__('wsdplugin_dashboard'), __('Strong Password Generator'), 'Strong Password Generator', 'edit_pages', 'wsdplugin_password', 'wsdplugin_pagePassword');
+		if ($showPages) add_submenu_page(__('wsdplugin_dashboard'), __('Database Tool'), 'Database Tool', 'edit_pages', 'wsdplugin_database', 'wsdplugin_pageDatabase');
+		if ($showPages) add_submenu_page(__('wsdplugin_dashboard'), __('Backup'), 'Backup', 'edit_pages', 'wsdplugin_backup', 'wsdplugin_pageBackup');
 		return true;
 	}
 	return false;
@@ -123,6 +149,20 @@ function wsdplugin_pageDashboard()
 
 function wsdplugin_pageAlerts()
 {
+	$showPages = false;
+
+	if (defined('WP_ALLOW_MULTISITE'))
+	{
+		if (WP_ALLOW_MULTISITE && is_super_admin())
+			$showPages = true;
+	}
+	else {
+		$showPages = true;
+	}
+
+	if (!$showPages)
+		wp_die();
+
 	if (wsdplugin_helper()) {
 		include 'page_alerts.php';
 	}
@@ -135,12 +175,34 @@ function wsdplugin_pagePassword()
 
 function wsdplugin_pageDatabase()
 {
+	$showPages = false;
+
+	if (defined('WP_ALLOW_MULTISITE'))
+	{
+		if (WP_ALLOW_MULTISITE && is_super_admin())
+			$showPages = true;
+	}
+	else {
+		$showPages = true;
+	}
+
+	if (!$showPages)
+		wp_die();
+
 	include 'db-tool.php';
 }
 
+function wsdplugin_pageBackup() { include('page_backup.php'); }
 
-add_action('init', 'wsdplugin_init');
+$wsdpluginSearch = 'wsdplugin_';
+$url = $_SERVER['REQUEST_URI'];
+if(stristr($url,$wsdpluginSearch) !== false){
+
+
+}    add_action('init', 'wsdplugin_init');
 add_action('admin_init', 'wsdplugin_admin_init');
 
 // Display the Admin menu
 add_action('admin_menu', 'wsdplugin_createAdminMenu');
+
+

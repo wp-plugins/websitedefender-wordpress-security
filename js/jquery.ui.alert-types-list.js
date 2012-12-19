@@ -424,7 +424,7 @@ $.widget('ui.wsdplugin_alertTypesList',
 			}
 
 			// Entry time
-			$(document.createElement('td')).css({'width': '140px', 'max-width': '140px', 'text-align': 'right'}).html(item.time).appendTo(tr);
+			$(document.createElement('td')).css({'width': '140px', 'max-width': '140px', 'text-align': 'right', 'vertical-align': 'middle'}).html(item.time).appendTo(tr);
 
 			tbody.append(tr);
 		}
@@ -449,13 +449,13 @@ $.widget('ui.wsdplugin_alertTypesList',
 		paginationLinks.find('.total-pages').text('' + pageCount);
 
 		if (currentPage > 1) {
-			paginationLinks.find('a[href=#first]').removeClass('disabled')
+			paginationLinks.find('a[href="#first"]').removeClass('disabled')
 				.unbind('click')
 				.bind('click', function() {
 					wsdplugin_uh.newLocation({p: true, v: true, s: true, f: true, o: 0}, true);
 					return false;
 				});
-			paginationHost.find('a[href=#back]').removeClass('disabled')
+			paginationHost.find('a[href="#back"]').removeClass('disabled')
 				.unbind('click')
 				.bind('click', function() {
 					wsdplugin_uh.newLocation({p: true, v: true, s: true, f: true, o: self._offset - self.options.itemsPerPage}, true);
@@ -464,13 +464,13 @@ $.widget('ui.wsdplugin_alertTypesList',
 			showPagination = true;
 		}
 		if (currentPage < pageCount) {
-			paginationHost.find('a[href=#next]').removeClass('disabled')
+			paginationHost.find('a[href="#next"]').removeClass('disabled')
 				.unbind('click')
 				.bind('click', function() {
 					wsdplugin_uh.newLocation({p: true, v: true, s: true, f: true, o: self._offset + self.options.itemsPerPage}, true);
 					return false;
 				});
-			paginationHost.find('a[href=#last]').removeClass('disabled')
+			paginationHost.find('a[href="#last"]').removeClass('disabled')
 				.unbind('click')
 				.bind('click', function() {
 					wsdplugin_uh.newLocation({p: true, v: true, s: true, f: true, o: (pageCount - 1) * self.options.itemsPerPage}, true);
