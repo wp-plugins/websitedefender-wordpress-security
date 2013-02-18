@@ -311,13 +311,13 @@ global $wsdplugin_nonce;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
-    check_admin_referer('wsdplugin_nonce');
-    $_nonce = $_POST['wsdplugin_nonce_form'];
-    if (empty($_nonce) || ($_nonce != $wsdplugin_nonce)){
-        wp_die("Invalid request!");
-    }
+	check_admin_referer('wsdplugin_nonce');
+	$_nonce = $_POST['wsdplugin_nonce_form'];
+	if (empty($_nonce) || ($_nonce != $wsdplugin_nonce)){
+		wp_die("Invalid request!");
+	}
 
-    //
+	//
 	// Backup database
 	//
 	if (isset($_POST['backup-db']))
@@ -378,24 +378,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
 <div class="wrap wsdplugin_content dashboard-widgets-wrap">
 
+
+<?php
+$expiration = get_option('WSD-EXPIRATION');
+if ($expiration == -1) { $expiration = 'expired'; }
+else if ($expiration !== false) { $expiration = (int)floor($expiration / 60.0 / 60.0 / 24.0); }
+
+//TODO: Add the error box needed to display AJAX errors
+
+$optInfo = get_option('WSD-SCANTYPE');
+if ($optInfo === 'BAK' && get_option('WSD-EXPIRATION') == -1)
+	$optInfo = 'WSDFREE';
+// 1. DISPLAY THE BANNER
+?>
+<div id="wrap wsdplugin_advert">
+	<?php if(empty($optInfo)){ ?>
+	<a href="<?php echo wsdplugin_Handler::site_url().'wp-admin/admin.php?page=wsdplugin_alerts';?>">
+		<img src="<?php echo wsdplugin_PLUGIN_PATH ;?>img/banners/free.jpg" title="" alt=""/></a>
+	<?php } elseif($optInfo == 'BAK') { ?>
+	<img src="<?php echo wsdplugin_PLUGIN_PATH ;?>img/banners/pro.jpg" title="" alt=""/>
+	<?php } else if ($optInfo == 'WSDPRO') { ?>
+	<a href="https://dashboard.websitedefender.com/" target="_blank">
+		<img src="<?php echo wsdplugin_PLUGIN_PATH ;?>img/banners/trial-<?php echo $expiration; ?>-days.jpg" title="" alt=""/></a>
+	<?php } else { ?>
+	<a href="http://www.websitedefender.com/websitedefender-features/" target="_blank">
+		<img src="<?php echo wsdplugin_PLUGIN_PATH ;?>img/banners/free.jpg" title="" alt=""/></a>
+	<?php } ?>
+</div>
+
+
 	<div class="wsdplugin_page_title">
 		<h2>Database Tool</h2>
 	</div>
 
 	<div style="margin-top: 10px; margin-bottom: 10px; margin-left: 2px">
-	    <div class="wsdplugin_warning_small" style="margin-right: 5px; float: left; margin-top: 2px;"></div>
+		<div class="wsdplugin_warning_small" style="margin-right: 5px; float: left; margin-top: 2px;"></div>
 		<div style="padding-top: 2px">
 			This tool does not support WordPress multisite and can only be used on single installations of WordPress.
 		</div>
 	</div>
 
 	<div class="wsdplugin_page_backup_db">
+		<style type="text/css">.wsdplugin_page_backup_db .meta-box-sortables .postbox > h3 {cursor: default !important;}</style>
 
 		<div class="metabox-holder">
 			<div class="meta-box-sortables">
 				<div class="postbox">
 					<div title="Click to toggle" class="handlediv"><br></div>
-					<h3 class="hndle"><span>Backup database</span></h3>
+					<h3><span>Backup database</span></h3>
 					<div class="inside">
 
 						<?php
@@ -408,7 +438,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 							}
 						?>
 						<p>
-                            It is recommended to backup your database before using this tool to rename the WordPress database table prefixes.
+							It is recommended to backup your database before using this tool to rename the WordPress database table prefixes.
 							Click on the backup button below to generate a database backup.
 						</p>
 
@@ -429,10 +459,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 								<form method="post" enctype="application/x-www-form-urlencoded" style="overflow: hidden;">
 									<input name="backup-db" type="submit" class="button-primary" value="Backup now" />
 
-                                    <?php
-                                        echo '<input type="hidden" name="wsdplugin_nonce_form" value="'.$wsdplugin_nonce.'" />';
-                                        wp_nonce_field('wsdplugin_nonce');
-                                    ?>
+									<?php
+										echo '<input type="hidden" name="wsdplugin_nonce_form" value="'.$wsdplugin_nonce.'" />';
+										wp_nonce_field('wsdplugin_nonce');
+									?>
 								</form>
 
 								<?php
@@ -445,7 +475,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 			<div class="meta-box-sortables">
 				<div class="postbox">
 					<div title="Click to toggle" class="handlediv"><br></div>
-					<h3 class="hndle"><span>Change Database Prefix</span></h3>
+					<h3><span>Change Database Prefix</span></h3>
 					<div class="inside">
 
 						<?php
@@ -533,10 +563,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 								<?php if ($dbRights['rightsEnough']) { ?>
 								<input type="submit" name="change-prefix" class="button-primary" value="Start renaming"/>
 								<?php } ?>
-                                <?php
-                                    echo '<input type="hidden" name="wsdplugin_nonce_form" value="'.$wsdplugin_nonce.'" />';
-                                    wp_nonce_field('wsdplugin_nonce');
-                                ?>
+								<?php
+									echo '<input type="hidden" name="wsdplugin_nonce_form" value="'.$wsdplugin_nonce.'" />';
+									wp_nonce_field('wsdplugin_nonce');
+								?>
 							</form>
 
 					<?php } ?>
@@ -547,17 +577,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 			<div class="meta-box-sortables">
 				<div class="postbox">
 					<div title="Click to toggle" class="handlediv"><br></div>
-					<h3 class="hndle"><span>Database Backup Files</span></h3>
+					<h3><span>Database Backup Files</span></h3>
 					<div class="inside">
 
-                        <div style="margin-top: 10px; margin-bottom: 10px; margin-left: 2px">
-                            <div style="margin-right: 5px; float: left; margin-top: 2px;" class="wsdplugin_warning_small"></div>
-                            <div style="padding-top: 2px">
-                                Once you rename the WordPress database table prefix you can delete these backups from the
-                                backup folder <strong><?php echo wptexturize(wsdplugin_database_backup_location()); ?></strong>.
-                                Alternatively you can upload an empty index.php file to avoid directory listing and information disclosure.
-                            </div>
-                        </div>
+						<div style="margin-top: 10px; margin-bottom: 10px; margin-left: 2px">
+							<div style="margin-right: 5px; float: left; margin-top: 2px;" class="wsdplugin_warning_small"></div>
+							<div style="padding-top: 2px">
+								Once you rename the WordPress database table prefix you can delete these backups from the
+								backup folder <strong><?php echo wptexturize(wsdplugin_database_backup_location()); ?></strong>.
+								Alternatively you can upload an empty index.php file to avoid directory listing and information disclosure.
+							</div>
+						</div>
 
 						<div style="clear:both"></div>
 
@@ -588,7 +618,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 							?>
 						<p><?php echo __('You don\'t have any backups so far.'); } ?></p>
 
-                        </div>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -83,11 +83,11 @@ class wsdplugin_Utils
 		{
 			if($strict)
 			{
-				$result = ivconv($default_charset, "UTF-8", $data);
+				$result = iconv($default_charset, "UTF-8", $data);
 				if(($result !== FALSE) && (strlen($data) == strlen($result)))return $result;
 				throw new Exception(__("UTF8 conversion error"), 1);
 			}
-			$result = ivconv($default_charset, "UTF-8".$action_on_bad_chars, $data);
+			$result = iconv($default_charset, "UTF-8".$action_on_bad_chars, $data);
 			if($result) return $result;
 			throw new Exception(__("UTF8 conversion error"), 1);
 		}
@@ -128,8 +128,8 @@ class wsdplugin_Utils
 
 class wsdplugin_Handler
 {
-    static $settings_cache = array();
-    static $problems = array();
+	static $settings_cache = array();
+	static $problems = array();
 
 	static function site_url()
 	{
@@ -139,103 +139,62 @@ class wsdplugin_Handler
 
 	static function delete_option($option)
 	{
-	    if(array_key_exists($option, self::$settings_cache))
-	       unset(self::$settings_cache[$option]);
+		if(array_key_exists($option, self::$settings_cache))
+		   unset(self::$settings_cache[$option]);
 		delete_option($option);
 	}
 
 	static function set_option($option, $value)
 	{
-	    if(array_key_exists($option, self::$settings_cache))
-        {
-            if(self::$settings_cache[$option] == $value)
-                return;
-            self::$settings_cache[$option] = $value;
-        }
+		if(array_key_exists($option, self::$settings_cache))
+		{
+			if(self::$settings_cache[$option] == $value)
+				return;
+			self::$settings_cache[$option] = $value;
+		}
 		delete_option($option);
 		add_option($option, $value);
 	}
 
 	static function get_option($option, $default = FALSE)
 	{
-	    if(array_key_exists($option, self::$settings_cache))
-	       return self::$settings_cache[$option];
+		if(array_key_exists($option, self::$settings_cache))
+		   return self::$settings_cache[$option];
 		return get_option($option, $default);
 	}
 
 	static function render_error($error, $reason = NULL)
 	{
+		$refreshPageUrl = urlencode($_SERVER['REQUEST_URI']);
 		$markup = <<<HTML
-
-<style>
-
-/*
- * INFO / ERROR boxes
- */
-.wsdplugin_message
-{
-	margin: 5px 0 15px;
-	padding: 0 0.6em;
-	border-radius: 3px;
-	border: 1px solid;
-}
-.wsdplugin_message.wsdplugin_message_warning
-{
-	background-color: #FFFFE0;
-	border-color: #E6DB55;
-}
-.wsdplugin_message.wsdplugin_message_error
-{
-	background-color: #FCC2C2;
-	border-color: #CC0000;
-}
-.wsdplugin_message.wsdplugin_message_success
-{
-	background-color: #FFFFE0;
-	border-color: #E6DB55;
-	color: #006600;
-}
-.wsdplugin_message p
-{
-	margin: 0.5em 0;
-	padding: 2px;
-}
-
+<style type="text/css">
+.wsdplugin_message { margin: 5px 0 15px; padding: 0 0.6em; border-radius: 3px; border: 1px solid; }
+.wsdplugin_message.wsdplugin_message_warning { background-color: #FFFFE0; border-color: #E6DB55; }
+.wsdplugin_message.wsdplugin_message_error { background-color: #FCC2C2; border-color: #CC0000; }
+.wsdplugin_message.wsdplugin_message_success { background-color: #FFFFE0; border-color: #E6DB55; color: #006600; }
+.wsdplugin_message p { margin: 0.5em 0; padding: 2px; }
 </style>
-
 <div class="wrap wsdplugin_content">
-
-<div class="wsdplugin_message wsdplugin_message_error" style="padding: 4px 10px;">
-
-{$error}
-
-<div style="height: 30px;"></div>
-If the problem persists you may click <a href="admin.php?page=wsdplugin_dashboard&wsdplugin_reset">here</a> to reset the plugin or
-<a href="{$_SERVER['REQUEST_URI']}">here</a> to refresh the page. You can also contact <a href="mailto:support@websitedefender.com">WebsiteDefender Support</a>.
-
+	<div class="wsdplugin_message wsdplugin_message_error" style="padding: 4px 10px;">{$error}
+	<div style="height: 30px;"></div>
+		If the problem persists you may click <a href="admin.php?page=wsdplugin_dashboard&wsdplugin_reset">here</a> to reset the plugin or
+		<a href="{$refreshPageUrl}">here</a> to refresh the page. You can also contact <a target="_blank" href="mailto:support@websitedefender.com">WebsiteDefender Support</a>.
+	</div>
 </div>
-
-</div>
-
-
 HTML;
-
 		wp_die($markup, 'Error', array('back_link' => false));
 	}
 
 	static function render_new_user_form($username = '', $name = '', $surname = '', $message = '', $errorMessage = '')
 	{
-		if (strlen($username) == 0)
-			$username = self::get_option('admin_email', '');
-
-		require 'form_register.php';
-		wsdplugin_render_newuser_form($username, $name, $surname, $message, $errorMessage);
+		include "signup.php";
+		wsdplugin_render_signup_form('register', $username, $name, $surname, $message, $errorMessage);
 	}
 
 	static function render_login_form($username = '', $message = '', $errorMessage = '')
 	{
-		require 'form_login.php';
-		wsdplugin_render_login_form($username, $message, $errorMessage);
+		include "signup.php";
+		wsdplugin_render_signup_form('login', $username, '', '', $message, $errorMessage);
 	}
 
 	static function render_captcha($message = NULL, $errorMessage = NULL)
@@ -247,9 +206,9 @@ HTML;
 		{
 			echo '
 <div class="wsdplugin_message wsdplugin_message_warning" style="margin-right: 15px;">
-    <p>
-        <strong>' . wptexturize($message) . '</strong>
-    </p>
+	<p>
+		<strong>' . wptexturize($message) . '</strong>
+	</p>
 </div>';
 		}
 
@@ -257,9 +216,9 @@ HTML;
 		{
 			echo '
 <div class="error wsdplugin_error_box" style="margin-right: 15px;">
-    <p>
-        <strong>' . wptexturize($errorMessage) . '</strong>
-    </p>
+	<p>
+		<strong>' . wptexturize($errorMessage) . '</strong>
+	</p>
 </div>';
 		}
 
@@ -272,14 +231,14 @@ HTML;
 		echo '</form>';
 	}
 
-    static function agentExists($agentname = NULL)
-    {
-        if($agentname == NULL)
-            $agentname = self::get_option("WSD-AGENT-NAME", '');
-        if(is_file(ABSPATH.$agentname)) return TRUE;
-        if(array_key_exists("DOCUMENT_ROOT", $_SERVER) && is_file($_SERVER["DOCUMENT_ROOT"].'/'.$agentname)) return TRUE;
-        return FALSE;
-    }
+	static function agentExists($agentname = NULL)
+	{
+		if($agentname == NULL)
+			$agentname = self::get_option("WSD-AGENT-NAME", '');
+		if(is_file(ABSPATH.$agentname)) return TRUE;
+		if(array_key_exists("DOCUMENT_ROOT", $_SERVER) && is_file($_SERVER["DOCUMENT_ROOT"].'/'.$agentname)) return TRUE;
+		return FALSE;
+	}
 
 
 	static function validateInput($data, $rule, $failOnEmpty = True, $rule_value = 512)
@@ -362,12 +321,12 @@ HTML;
 		{
 			if ($_POST['type'] == 'new')
 			{
-                global $wsdplugin_nonce;
-                check_admin_referer('wsdplugin_nonce');
-                $_nonce = $_POST['wsdplugin_nonce_form'];
-                if (empty($_nonce) || ($_nonce != $wsdplugin_nonce)){
-                    wp_die("Invalid request!");
-                }
+				global $wsdplugin_nonce;
+				check_admin_referer('wsdplugin_nonce');
+				$_nonce = $_POST['wsdplugin_nonce_form'];
+				if (empty($_nonce) || ($_nonce != $wsdplugin_nonce)){
+					wp_die("Invalid request!");
+				}
 
 				$username  = $_POST['wsdplugin_newuser_username'];
 				$password1 = $_POST['wsdplugin_newuser_password1'];
@@ -378,27 +337,21 @@ HTML;
 				if (self::validateInput($username, 'email') !== true)
 				{
 					self::render_new_user_form($username, $name, $surname, '', __('The email is not valid.'));
-					self::render_login_form('', __("If you've already got a WebsiteDefender account, you can log in here."));
 					return false;
 				}
-
 				if (self::validateInput($name, 'str') !== true)
 				{
 					self::render_new_user_form($username, $name, $surname, '', __('The name is not valid.'));
-					self::render_login_form('', __("If you've already got a WebsiteDefender account, you can log in here."));
 					return false;
 				}
 				if (self::validateInput($surname, 'str') !== true)
 				{
 					self::render_new_user_form($username, $name, $surname, '', 'The surname is not valid.');
-					self::render_login_form('', __("If you've already got a WebsiteDefender account, you can log in here."));
 					return false;
 				}
-
 				if (($password1 != $password2) || wsdplugin_Utils::has_nonASCII($password1))
 				{
 					self::render_new_user_form($username, $name, $surname, '', __('The passwords do not match or contain invalid characters.'));
-					self::render_login_form('', __("If you've already got a WebsiteDefender account, you can log in here."));
 					return false;
 				}
 
@@ -412,12 +365,12 @@ HTML;
 			}
 			if ($_POST['type'] == 'login')
 			{
-                global $wsdplugin_nonce;
-                check_admin_referer('wsdplugin_nonce');
-                $_nonce = $_POST['wsdplugin_nonce_form'];
-                if (empty($_nonce) || ($_nonce != $wsdplugin_nonce)){
-                    wp_die("Invalid request!");
-                }
+				global $wsdplugin_nonce;
+				check_admin_referer('wsdplugin_nonce');
+				$_nonce = $_POST['wsdplugin_nonce_form'];
+				if (empty($_nonce) || ($_nonce != $wsdplugin_nonce)){
+					wp_die("Invalid request!");
+				}
 
 				$username = $_POST["wsdplugin_login_username"];
 				$password = $_POST["wsdplugin_login_password"];
@@ -443,7 +396,6 @@ HTML;
 		if($username == '')
 		{
 			self::render_new_user_form($username);
-			self::render_login_form('', __("If you've already got a WebsiteDefender account, you can log in here."));
 			return FALSE;
 		}
 
@@ -454,7 +406,6 @@ HTML;
 		if(($hash == FALSE) && ($wsd_key == FALSE))
 		{
 			self::render_new_user_form($username);
-			self::render_login_form('', __("If you've already got a WebsiteDefender account, you can log in here."));
 			return FALSE;
 		}
 
@@ -480,25 +431,25 @@ HTML;
 			if($id)
 			{
 				$request["id"] = self::get_option('WSD-ID', FALSE);
-                $agentname = self::get_option("WSD-AGENT-NAME", '');
-                if($agentname !== '')
-                {
-                    //check if agent exists
-                    if(! wsdplugin_Handler::agentExists($agentname))
-                    {
-                        //check if we have the agent data
-                        $agentdata = get_option("WSD-AGENT-DATA", FALSE);
-                        if($agentdata !== FALSE)
-                        {
-                            //if we already retrieved the data then also try to save it
-                            $result = @file_put_contents(ABSPATH.$agentname , $agentdata);
+				$agentname = self::get_option("WSD-AGENT-NAME", '');
+				if($agentname !== '')
+				{
+					//check if agent exists
+					if(! wsdplugin_Handler::agentExists($agentname))
+					{
+						//check if we have the agent data
+						$agentdata = get_option("WSD-AGENT-DATA", FALSE);
+						if($agentdata !== FALSE)
+						{
+							//if we already retrieved the data then also try to save it
+							$result = @file_put_contents(ABSPATH.$agentname , $agentdata);
 
-	                        if ($result === false)
-		                        self::$problems[] = 'agent-install-error';
-                        }
-                        else $agentname = '';
-                    }
-                }
+							if ($result === false)
+								self::$problems[] = 'agent-install-error';
+						}
+						else $agentname = '';
+					}
+				}
 				$request["aid"] = md5($agentname);
 			}
 
@@ -518,7 +469,8 @@ HTML;
 				$error = $result['error'];
 				if($error['code'] == "invalid-request")
 				{
-					self::render_error(__("An error happened during the process [code:{$error["message"]}]. If the problem persists, please contact <a href=\"mailto:support@websitedefender.com\">WebsiteDefender Support</a>."));
+					self::render_error(__("Incorrect captcha provided. Please try again."));
+
 				}
 				else if($error['code'] == "invalid-api-version")
 				{
@@ -527,11 +479,10 @@ HTML;
 				else if($error['code'] == 'email-taken')
 				{
 					self::render_new_user_form($username, '','', '', __("Email is already taken. Please specify a different email."));
-					self::render_login_form($username, sprintf(__("If you own %s please log in with that account"), $username));
 				}
 				else if($error['code'] == "service-down")
 				{
-					self::render_error(__("The server is in maintenance mode [code:{$error["message"]}]. Please try again later. If the problem persists, please contact <a href=\"mailto:support@websitedefender.com\">WebsiteDefender Support</a>."));
+					self::render_error(__("The server is in maintenance mode [code:{$error["message"]}]. Please try again later. If the problem persists, please contact <a target=\"_blank\" href=\"mailto:support@websitedefender.com\">WebsiteDefender Support</a>."));
 				}
 				else if($error['code'] == "invalid-url")
 				{
@@ -550,7 +501,8 @@ HTML;
 							self::render_new_user_form($username, '', '', '', __('Invalid email provided'));
 						}
 					}
-                    else self::render_error(__("Invalid email provided"), $error["message"]);
+					else
+						 self::render_error(__("Invalid email provided"), $error["message"]);
 				}
 				else if($error['code'] == "captcha")
 				{
@@ -563,63 +515,54 @@ HTML;
 				else if ($error['code'] == "invalid-name")
 				{
 					self::render_new_user_form($username, '', '', '', __('Invalid name provided'));
-					self::render_login_form($username);
 				}
 				else if ($error['code'] == "invalid-surname")
 				{
 					self::render_new_user_form($username, '','', '', __("Invalid surname provided"));
-					self::render_login_form($username, "");
 				}
 				else if($error['code'] == "bad-login")
 				{
 					self::delete_option("WSD-HASH");
-					self::render_new_user_form('', '', '', __('If the website is not registered already with WebsiteDefender, create a new account.'));
 					self::render_login_form($username, '', __("Invalid login information"));
 				}
 				else if($error['code'] == "bad-key")
 				{
 					self::delete_option("WSD-KEY");
-					self::render_error('Autentification error. Please refresh the page or contact <a href="mailto:support@websitedefender.com">WebsiteDefender Support</a> if the problem persists.');
+					self::render_error('Autentification error. Please refresh the page or contact <a target="_blank" href="mailto:support@websitedefender.com">WebsiteDefender Support</a> if the problem persists.');
 				}
 				else if($error['code'] == "bad-account")
 				{
 					if ($error['message'] == 'disabled')
 					{
-						self::render_error('This account has been disabled. please contact <a href="mailto:support@websitedefender.com">WebsiteDefender Support</a> for more information.');
+						self::render_error('This account has been disabled. please contact <a target="_blank" href="mailto:support@websitedefender.com">WebsiteDefender Support</a> for more information.');
 					}
 					else if($error['message'] == 'not-verified')
 					{
-						self::render_error('This account is valid however was not verified. Click on the verification link received by email, or contact <a href="mailto:support@websitedefender.com">WebsiteDefender Support</a> for further instruction.');
+						self::render_error('This account is valid however was not verified. Click on the verification link received by email, or contact <a target="_blank" href="mailto:support@websitedefender.com">WebsiteDefender Support</a> for further instruction.');
 					}
 					else if($error['message'] == 'email-taken')
 					{
 						self::render_new_user_form($username, '','', '', 'Email already in use. Please choose another email.');
-						self::render_login_form($username, "If you own {$username} please log in with that account");
 					}
 					else if($error['message'] == "licente-expired")
 					{
 						self::delete_option('WSD-ID');
-
 						self::render_new_user_form($username, '','', '', 'The licence for this account is expired. Login to the <a target="_blank" href="https://dashboard.websitedefender.com">WebsiteDefender dashboard</a> to extend your licence.');
-                        self::render_login_form('');
 					}
 					else if($error['message'] == "upgrade-licente")
 					{
 						self::delete_option('WSD-ID');
 						self::render_new_user_form($username, '','', '', 'The maximum number of websites for this account has been reached. Login to the <a target="_blank" href="https://dashboard.websitedefender.com">WebsiteDefender dashboard</a> to increase the number of monitored websites.');
-                        self::render_login_form('');
 					}
 					else if($error['message'] == "upgrade-account")
 					{
 						self::delete_option('WSD-ID');
 						self::render_new_user_form($username, '','', '', 'The maximum number of websites for this account has been reached. Login to the <a target="_blank" href="https://dashboard.websitedefender.com">WebsiteDefender dashboard</a> to upgrade your WebsiteDefender account.');
-                        self::render_login_form('');
 					}
 					else if($error['message'] == "max-targets")
 					{
-					    self::delete_option('WSD-ID');
+						self::delete_option('WSD-ID');
 						self::render_new_user_form($username, '','', '', 'The maximum number of websites for this account has been reached. To monitor more websites with WebsiteDefender create a new account or use a different account.');
-						self::render_login_form('');
 					}
 					return FALSE;
 				}
@@ -629,7 +572,7 @@ HTML;
 				}
 				else if($error['code'] == "url-exists")
 				{
-					self::render_login_form($username, null, 'This website is registered under a different account.<br/>Login with that account or please contact the <a href="mailto:support@websitedefender.com">WebsiteDefender Support</a> team.');
+					self::render_login_form($username, null, 'This website is registered under a different account.<br/>Login with that account or please contact the <a target="_blank" href="mailto:support@websitedefender.com">WebsiteDefender Support</a> team.');
 				}
 				else
 				{
@@ -648,7 +591,6 @@ HTML;
 		if(is_array($result))
 		{
 			self::set_option('WSD-WORKING', TRUE);
-
 			if(array_key_exists('id', $result))
 				self::set_option('WSD-ID', $result['id']);
 
@@ -656,6 +598,9 @@ HTML;
 			{
 				self::set_option('WSD-SCANTYPE', $result['licence'][0]);
 				self::set_option('WSD-EXPIRATION', $result['licence'][1]);
+
+				if (isset($result['licence'][2]) && $result['licence'][2])
+					self::set_option('WSD-EXPIRATION', -1);
 			}
 
 			if(array_key_exists('agent', $result))
@@ -670,8 +615,8 @@ HTML;
 			}
 			return TRUE;
 		}
-        self::render_error("An error happened during the process [invalid-server-response]. If the problem persists, please conntact the support.");
-        return FALSE;
+		self::render_error("An error happened during the process [invalid-server-response]. If the problem persists, please conntact the support.");
+		return FALSE;
 	}
 }
 
@@ -720,7 +665,6 @@ class wsdplugin_RPC
 		if ($decoded == null)
 			throw new Exception(__("Invalid JSON response."."[WSD-RPC]"));
 
-		//$result["cookies"]
 		$result["body"] = $decoded;
 
 		return $result;
@@ -732,7 +676,7 @@ class wsdplugin_RPC
 	const HTTP_CHUNK_HEADER = 3;
 	const HTTP_CHUNK_BODY   = 4;
 
-	static function httprequest($verb, $url, $body = "", $headers = array(), $timeout = 10, $cookies, $canfallbacktononssl = FALSE)
+	static function httprequest($verb, $url, $body = "", $headers = array(), $timeout = 10, $cookies = array(), $canfallbacktononssl = FALSE)
 	{
 		$e = error_reporting(0);
 
@@ -773,17 +717,13 @@ class wsdplugin_RPC
 		}
 
 		$query = ($url["query"] != '') ? '?'.$url["query"] : '';
-		$out = $verb . " " . $url["path"] . $url["query"] . " HTTP/1.1\r\n";
+		$out = $verb . " " . $url["path"] . $query . " HTTP/1.1\r\n";
 		$out .= "Host: " . $url["host"] . "\r\n";
 		$out .= "Connection: Close\r\n";
 		$out .= "Accept-Encoding: identity\r\n";
 		if ($verb == "POST")
 		{
 			$out .= "Content-Length: " . strlen($body) . "\r\n";
-		}
-		foreach ($cookies as $cookie)
-		{
-
 		}
 		foreach ($headers as $name => $value)
 		{
@@ -823,8 +763,6 @@ class wsdplugin_RPC
 
 			if ($status == self::HTTP_STATUS)
 			{
-				//TODO: check status for 200, error on rest, eventually work arround 302 303
-				$resultStatus = trim($data);
 				$status = self::HTTP_HEADERS;
 				continue;
 			}
@@ -945,8 +883,8 @@ class wsdplugin_NotificationEngine
 	{
 		if(!self::hasToRun("TEST-SESSION", 1800))
 			return;
-        //lock the session
-        self::updateStatus("TEST-SESSION");
+		//lock the session
+		self::updateStatus("TEST-SESSION");
 
 		if(wsdplugin_Handler::get_option('WSD-WORKING', FALSE) === FALSE)
 			return;
@@ -966,7 +904,6 @@ class wsdplugin_NotificationEngine
 					}
 					catch(Exception $e)
 					{
-						//var_dump($e);
 					}
 				}
 			}
@@ -1013,449 +950,438 @@ class wsdplugin_NotificationEngine
 											 "fs_wp_content"             => is_dir(ABSPATH."wp-content") ? fileperms(ABSPATH."wp-content") : 0,
 											 "fs_wp_includes"             => is_dir(ABSPATH."wp-includes") ? fileperms(ABSPATH."wp-includes") : 0,
 
-                                             "sys_os"                  => PHP_OS,
-                                             "sys_server"              => $_SERVER["SERVER_SOFTWARE"],
-                                             "sys_mysql_server"        => $wpdb->get_var("SELECT VERSION() AS version"),
+											 "sys_os"                  => PHP_OS,
+											 "sys_server"              => $_SERVER["SERVER_SOFTWARE"],
+											 "sys_mysql_server"        => $wpdb->get_var("SELECT VERSION() AS version"),
 
-                                             "php_version"             => PHP_VERSION,
-                                             "php_sm"                  => ini_get('safe_mode'),
-                                             "php_allow_url_fopen"     => ini_get('allow_url_fopen'),
-                                             "php_memory_limit"        => ini_get('memory_limit'),
-                                             "php_post_max_size"       => ini_get('post_max_size'),
-                                             "php_max_execution_time"  => ini_get('max_execution_time')
+											 "php_version"             => PHP_VERSION,
+											 "php_sm"                  => ini_get('safe_mode'),
+											 "php_allow_url_fopen"     => ini_get('allow_url_fopen'),
+											 "php_memory_limit"        => ini_get('memory_limit'),
+											 "php_post_max_size"       => ini_get('post_max_size'),
+											 "php_max_execution_time"  => ini_get('max_execution_time')
 											  )), sha1($key))
 					 );
 		$result = wsdplugin_RPC::execute("push", $data, $key);
-		//echo "result\n"; var_dump($result);
 		return $result['body']['result'];
 	}
 }
 
 class wsdplugin_security
 {
-    static $fixes  = array();
-    static $system_info = array();
-    static $alerts = array();
+	static $fixes  = array();
+	static $system_info = array();
+	static $alerts = array();
 
-    static function alert($type, $severity = 0, $value = NULL, $stack = 1)
-    {
-        if($severity === 0)
-        {
-            if(array_key_exists($type, self::$alerts))
-                unset(self::$alerts[$type]);
-            return;
-        }
-        if(!array_key_exists($type, self::$alerts)) self::$alerts[$type] = array();
-        self::$alerts[$type][] = array(time(), $severity, $value);
-        $c = count(self::$alerts[$type]);
-        if($c > $stack) self::$alerts[$type] = array_slice(self::$alerts[$type], $c - $stack);
-        return TRUE;
-    }
+	static function alert($type, $severity = 0, $value = NULL, $stack = 1)
+	{
+		if($severity === 0)
+		{
+			if(array_key_exists($type, self::$alerts))
+				unset(self::$alerts[$type]);
+			return;
+		}
+		if(!array_key_exists($type, self::$alerts)) self::$alerts[$type] = array();
+		self::$alerts[$type][] = array(time(), $severity, $value);
+		$c = count(self::$alerts[$type]);
+		if($c > $stack) self::$alerts[$type] = array_slice(self::$alerts[$type], $c - $stack);
+		return TRUE;
+	}
 
-    static function check_CurrentVersion()
-    {
-        $c = get_site_transient('update_core');
-        if(is_object($c))
-        {
-            if(empty($c->updates)) return self::alert('core-update');
-            if (!empty($c->updates[0]))
-            {
-                $c = $c->updates[0];
-                if (!isset($c->response) || 'latest' == $c->response ) return self::alert('core-update');
-                if ('upgrade' == $c->response)
-                    return self::alert('core-update', 3, $c->current);
-            }
-        }
-    }
+	static function check_CurrentVersion()
+	{
+		$c = get_site_transient('update_core');
+		if(is_object($c))
+		{
+			if(empty($c->updates)) return self::alert('core-update');
+			if (!empty($c->updates[0]))
+			{
+				$c = $c->updates[0];
+				if (!isset($c->response) || 'latest' == $c->response ) return self::alert('core-update');
+				if ('upgrade' == $c->response)
+					return self::alert('core-update', 3, $c->current);
+			}
+		}
+	}
 
-    static function check_AdminUsernameInfo()
-    {
-        global $wpdb;
-        $u = $wpdb->get_var("SELECT `ID` FROM $wpdb->users WHERE user_login='admin';");
-        if(!empty($u)) self::alert('user-admin-found', 2, TRUE);
-        else self::alert('user-admin-found');
-    }
+	static function check_AdminUsernameInfo()
+	{
+		global $wpdb;
+		$u = $wpdb->get_var("SELECT `ID` FROM $wpdb->users WHERE user_login='admin';");
+		if(!empty($u)) self::alert('user-admin-found', 2, TRUE);
+		else self::alert('user-admin-found');
+	}
 
-    static function check_DatabasePrefixInfo()
-    {
-        global $table_prefix;
-        if(strcasecmp('wp_', $table_prefix)==0)self::alert('table-prefix', 2, 'wp_');
-        else self::alert('table-prefix');
-    }
+	static function check_DatabasePrefixInfo()
+	{
+		global $table_prefix;
+		if(strcasecmp('wp_', $table_prefix)==0)self::alert('table-prefix', 2, 'wp_');
+		else self::alert('table-prefix');
+	}
 
-    public static function check_files()
-    {
-        if(!is_file(WP_CONTENT_DIR.'/index.php')) self::alert('no-index-wp-content', 2);
-        else self::alert('no-index-wp-content');
+	public static function check_files()
+	{
+		if(!is_file(WP_CONTENT_DIR.'/index.php')) self::alert('no-index-wp-content', 2);
+		else self::alert('no-index-wp-content');
 
-        if(!is_file(WP_CONTENT_DIR.'/plugins/index.php')) self::alert('no-index-plugins', 2);
-        else self::alert('no-index-plugins');
+		if(!is_file(WP_CONTENT_DIR.'/plugins/index.php')) self::alert('no-index-plugins', 2);
+		else self::alert('no-index-plugins');
 
-        if(!is_file(WP_CONTENT_DIR.'/themes/index.php')) self::alert('no-index-themes', 2);
-        else self::alert('no-index-themes');
+		if(!is_file(WP_CONTENT_DIR.'/themes/index.php')) self::alert('no-index-themes', 2);
+		else self::alert('no-index-themes');
 
-        if(!is_dir(WP_CONTENT_DIR.'/uploads')) self::alert('no-index-uploads');
-        else
-        {
-            if(!is_file(WP_CONTENT_DIR.'/uploads/index.php')) self::alert('no-index-uploads', 2);
-            else self::alert('no-index-uploads');
-        }
+		if(!is_dir(WP_CONTENT_DIR.'/uploads')) self::alert('no-index-uploads');
+		else
+		{
+			if(!is_file(WP_CONTENT_DIR.'/uploads/index.php')) self::alert('no-index-uploads', 2);
+			else self::alert('no-index-uploads');
+		}
 
-        if(!is_file(ABSPATH.'wp-admin/.htaccess'))self::alert('no-htaccess-wp-admin', 2);
-        else self::alert('no-htaccess-wp-admin');
+		if(!is_file(ABSPATH.'wp-admin/.htaccess'))self::alert('no-htaccess-wp-admin', 2);
+		else self::alert('no-htaccess-wp-admin');
 
-        if(!is_file(ABSPATH.'wp-admin/.htaccess'))self::alert('no-htaccess-wp-admin', 2);
-        else self::alert('no-htaccess-wp-admin');
+		if(!is_file(ABSPATH.'wp-admin/.htaccess'))self::alert('no-htaccess-wp-admin', 2);
+		else self::alert('no-htaccess-wp-admin');
 
-        //this should be tested if can be downloaded
-        if(is_file(ABSPATH.'readme.html'))self::alert('readme-in-root', 2);
-        else self::alert('readme-in-root');
-    }
+		//this should be tested if can be downloaded
+		if(is_file(ABSPATH.'readme.html'))self::alert('readme-in-root', 2);
+		else self::alert('readme-in-root');
+	}
 
-    public static function check_DatabaseUserAccessRights()
-    {
-        global $wpdb;
+	public static function check_DatabaseUserAccessRights()
+	{
+		global $wpdb;
 
-        $rights = $wpdb->get_results("SHOW GRANTS FOR CURRENT_USER()", ARRAY_N);
+		$rights = $wpdb->get_results("SHOW GRANTS FOR CURRENT_USER()", ARRAY_N);
 
-        if(empty($rights)) return self::alert('access-rights');
+		if(empty($rights)) return self::alert('access-rights');
 
-        foreach($rights as $right)
-        {
-            if(!empty($right[0]))
-            {
-                $r = strtoupper($right[0]);
+		foreach($rights as $right)
+		{
+			if(!empty($right[0]))
+			{
+				$r = strtoupper($right[0]);
 
-                if (preg_match("/GRANT ALL PRIVILEGES/i", $r)) {
-                    return self::alert('access-rights', 2, array("ALL PRIVILEGES"));
-                }
-                else
-                {
-                    if (preg_match_all("/CREATE|DELETE|DROP|EVENT|EXECUTE|FILE|PROCESS|RELOAD|SHUTDOWN|SUPER/", $r, $matches)){
-                        if (! empty($matches[0])){
-                            $m = $matches[0];
-                            $m = array_unique($m);
-                            if (count($m) >= 5){
-                                return self::alert('access-rights', 2, $m);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+				if (preg_match("/GRANT ALL PRIVILEGES/i", $r)) {
+					return self::alert('access-rights', 2, array("ALL PRIVILEGES"));
+				}
+				else
+				{
+					if (preg_match_all("/CREATE|DELETE|DROP|EVENT|EXECUTE|FILE|PROCESS|RELOAD|SHUTDOWN|SUPER/", $r, $matches)){
+						if (! empty($matches[0])){
+							$m = $matches[0];
+							$m = array_unique($m);
+							if (count($m) >= 5){
+								return self::alert('access-rights', 2, $m);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-    static function getSystemInfoScanReport()
-    {
-        global $wpdb;
-        self::$system_info = array();
-        self::$system_info[__('Operating System')] = array(PHP_OS, NULL);
-        self::$system_info[__('Server')] = array($_SERVER["SERVER_SOFTWARE"], NULL);
+	static function getSystemInfoScanReport()
+	{
+		global $wpdb;
+		self::$system_info = array();
+		self::$system_info[__('Operating System')] = array(PHP_OS, NULL);
+		self::$system_info[__('Server')] = array($_SERVER["SERVER_SOFTWARE"], NULL);
 
-        $msqlv = $wpdb->get_var("SELECT VERSION() AS version");
-        self::$system_info[__('MYSQL Version')] = array($msqlv, NULL);
+		$msqlv = $wpdb->get_var("SELECT VERSION() AS version");
+		self::$system_info[__('MYSQL Version')] = array($msqlv, NULL);
 
-        $mysqlinfo = $wpdb->get_results("SHOW VARIABLES LIKE 'sql_mode'");
-        if (is_array($mysqlinfo)) $sql_mode = $mysqlinfo[0]->Value;
-        if (empty($sql_mode)) $sql_mode = __('Not set');
-        self::$system_info[__('SQL Mode')] = array($sql_mode, "wsdwp_sql_mode");
+		$mysqlinfo = $wpdb->get_results("SHOW VARIABLES LIKE 'sql_mode'");
+		if (is_array($mysqlinfo)) $sql_mode = $mysqlinfo[0]->Value;
+		if (empty($sql_mode)) $sql_mode = __('Not set');
+		self::$system_info[__('SQL Mode')] = array($sql_mode, "wsdwp_sql_mode");
 
-        self::$system_info[__('PHP Version')]  = array(PHP_VERSION, NULL);
+		self::$system_info[__('PHP Version')]  = array(PHP_VERSION, NULL);
 
-        $sm = ini_get('safe_mode'); if (empty($sm)) { $sm = __('Off');}
-        self::$system_info[__('PHP Safe Mode')] = array($sm, "wsdwp_safe_mode");
+		$sm = ini_get('safe_mode'); if (empty($sm)) { $sm = __('Off');}
+		self::$system_info[__('PHP Safe Mode')] = array($sm, "wsdwp_safe_mode");
 
-        if(ini_get('allow_url_fopen')) $allow_url_fopen = __('On');
-        else $allow_url_fopen = __('Off');
-        self::$system_info[__('PHP Allow URL fopen')] = array($allow_url_fopen, "wsdwp_url_fopen");
+		if(ini_get('allow_url_fopen')) $allow_url_fopen = __('On');
+		else $allow_url_fopen = __('Off');
+		self::$system_info[__('PHP Allow URL fopen')] = array($allow_url_fopen, "wsdwp_url_fopen");
 
-        if(ini_get('memory_limit')) $memory_limit = ini_get('memory_limit');
-        else $memory_limit = __('N/A');
-        self::$system_info[__('PHP Memory Limit')] = array($memory_limit, "wsdwp_memory_limit");
+		if(ini_get('memory_limit')) $memory_limit = ini_get('memory_limit');
+		else $memory_limit = __('N/A');
+		self::$system_info[__('PHP Memory Limit')] = array($memory_limit, "wsdwp_memory_limit");
 
-        if (function_exists('memory_get_usage')) $memory_usage = round(memory_get_usage() / 1024 / 1024, 2) . __(' MByte');
-        else $memory_usage = __('N/A');
-        self::$system_info[__('Memory Usage')] = array($memory_usage, NULL);
+		if (function_exists('memory_get_usage')) $memory_usage = round(memory_get_usage() / 1024 / 1024, 2) . __(' MByte');
+		else $memory_usage = __('N/A');
+		self::$system_info[__('Memory Usage')] = array($memory_usage, NULL);
 
-        if(ini_get('upload_max_filesize')) $upload_max = ini_get('upload_max_filesize');
-        else $upload_max = __('N/A');
-        self::$system_info[__('PHP Max Upload Size')] = array($upload_max, 'wsdwp_upload_max_filesize');
+		if(ini_get('upload_max_filesize')) $upload_max = ini_get('upload_max_filesize');
+		else $upload_max = __('N/A');
+		self::$system_info[__('PHP Max Upload Size')] = array($upload_max, 'wsdwp_upload_max_filesize');
 
-        self::$system_info[__('PHP Display Errors')] = array(ini_get('display_errors') == 1 ? 'On': 'Off', NULL);
-        self::$system_info[__('PHP Display Startup Errors')] = array(ini_get('display_startup_errors') == 1 ?'On' : 'Off', NULL);
-        self::$system_info[__('WP Errors')] = array(($wpdb->show_errors || !$wpdb->suppress_errors) ? 'On' : 'Off', NULL);
+		self::$system_info[__('PHP Display Errors')] = array(ini_get('display_errors') == 1 ? 'On': 'Off', NULL);
+		self::$system_info[__('PHP Display Startup Errors')] = array(ini_get('display_startup_errors') == 1 ?'On' : 'Off', NULL);
+		self::$system_info[__('WP Errors')] = array(($wpdb->show_errors || !$wpdb->suppress_errors) ? 'On' : 'Off', NULL);
 
-        if(ini_get('post_max_size')) $post_max = ini_get('post_max_size');
-        else $post_max = __('N/A');
-        self::$system_info[__('PHP Post Max Size')] = array($post_max, "wsdwp_post_max_size");
+		if(ini_get('post_max_size')) $post_max = ini_get('post_max_size');
+		else $post_max = __('N/A');
+		self::$system_info[__('PHP Post Max Size')] = array($post_max, "wsdwp_post_max_size");
 
-        if(ini_get('max_execution_time')) $max_execute = ini_get('max_execution_time');
-        else $max_execute = __('N/A');
-        self::$system_info[__('PHP Max Script Execute Time')] = array($max_execute, "wsdwp_max_execution_time");
+		if(ini_get('max_execution_time')) $max_execute = ini_get('max_execution_time');
+		else $max_execute = __('N/A');
+		self::$system_info[__('PHP Max Script Execute Time')] = array($max_execute, "wsdwp_max_execution_time");
 
-        if (is_callable('exif_read_data')) $exif = __('Yes'). " ( V" . substr(phpversion('exif'),0,4) . ")" ;
-        else $exif = __('No');
-        self::$system_info[__('PHP Exif Support')] = array($exif, "wsdwp_exif");
+		if (is_callable('exif_read_data')) $exif = __('Yes'). " ( V" . substr(phpversion('exif'),0,4) . ")" ;
+		else $exif = __('No');
+		self::$system_info[__('PHP Exif Support')] = array($exif, "wsdwp_exif");
 
-        if (is_callable('iptcparse')) $iptc = __('Yes');
-        else $iptc = __('No');
-        self::$system_info[__('PHP IPTC Support')] = array($iptc, "wsdwp_iptc");
+		if (is_callable('iptcparse')) $iptc = __('Yes');
+		else $iptc = __('No');
+		self::$system_info[__('PHP IPTC Support')] = array($iptc, "wsdwp_iptc");
 
-        if (is_callable('xml_parser_create')) $xml = __('Yes');
-        else $xml = __('No');
-        self::$system_info[__('PHP XML Support')] = array($xml, "wsdwp_xml");
+		if (is_callable('xml_parser_create')) $xml = __('Yes');
+		else $xml = __('No');
+		self::$system_info[__('PHP XML Support')] = array($xml, "wsdwp_xml");
+	}
 
-    }
 
+	static function fix_hideWpVersionBackend()
+	{
+		if(is_admin() && !current_user_can('administrator'))
+		{
+			wp_enqueue_style('remove-wpv-css', wsdplugin_PLUGIN_PATH.'css/remove_wp_version.css');
+			wp_enqueue_script('remove-wp-version', wsdplugin_PLUGIN_PATH.'js/remove_wp_version.js', array('jquery'));
+			remove_action( 'update_footer', 'core_update_footer' );
+		}
+		return TRUE;
+	}
 
-    static function fix_hideWpVersionBackend()
-    {
-        if(is_admin() && !current_user_can('administrator'))
-        {
-            wp_enqueue_style('remove-wpv-css', wsdplugin_PLUGIN_PATH.'css/remove_wp_version.css');
-            wp_enqueue_script('remove-wp-version', wsdplugin_PLUGIN_PATH.'js/remove_wp_version.js', array('jquery'));
-            remove_action( 'update_footer', 'core_update_footer' );
-        }
-        return TRUE;
-    }
+	static function fix_preventWpContentDirectoryListing()
+	{
+		function cf($name)
+		{
+			$file = $name.'/index.php';
+			if(is_file($file)) return TRUE;
 
-    static function fix_preventWpContentDirectoryListing()
-    {
-        function cf($name)
-        {
-            $file = $name.'/index.php';
-            if(is_file($file)) return TRUE;
+			if(is_writable(WP_CONTENT_DIR))
+			{
+				$f = @fopen($file,'w');
+				if($f)
+				{
+					fclose($f);
+					@chmod($file,'0644');
+					return TRUE;
+				}
+			}
+			return FALSE;
+		}
+		$v1 = cf(WP_CONTENT_DIR);
+		$v2 = cf(WP_CONTENT_DIR.'/plugins');
+		$v3 = cf(WP_CONTENT_DIR.'/themes');
 
-            if(is_writable(WP_CONTENT_DIR))
-            {
-                $f = @fopen($file,'w');
-                if($f)
-                {
-                    fclose($f);
-                    @chmod($file,'0644');
-                    return TRUE;
-                }
-            }
-            return FALSE;
-        }
-        $v1 = cf(WP_CONTENT_DIR);
-        $v2 = cf(WP_CONTENT_DIR.'/plugins');
-        $v3 = cf(WP_CONTENT_DIR.'/themes');
+		return $v1 && $v2 && $v3;
+	}
 
-        return $v1 && $v2 && $v3;
-    }
+	 static function fix_removeErrorNotificationsFrontEnd()
+	{
+		$str = '<link rel="stylesheet" type="text/css" href="'.wsdplugin_PLUGIN_PATH.'css/styles-extra.css"/>';
+		add_action('login_head', create_function('$a', "echo '{$str}';"));
+		add_filter('login_errors', create_function('$a', "return null;"));
+		return TRUE;
+	}
 
-     static function fix_removeErrorNotificationsFrontEnd()
-    {
-        $str = '<link rel="stylesheet" type="text/css" href="'.wsdplugin_PLUGIN_PATH.'css/styles-extra.css"/>';
-        add_action('login_head', create_function('$a', "echo '{$str}';"));
-        add_filter('login_errors', create_function('$a', "return null;"));
-        return TRUE;
-    }
+	static function fix_removeThemeUpdateNotifications()
+	{
+		if(current_user_can('administrator')) return TRUE;
 
-    static function fix_removeThemeUpdateNotifications()
-    {
-        if(current_user_can('administrator')) return TRUE;
+		remove_action( 'load-themes.php', 'wp_update_themes' );
+		remove_action( 'load-update.php', 'wp_update_themes' );
+		remove_action( 'admin_init', '_maybe_update_themes' );
+		remove_action( 'wp_update_themes', 'wp_update_themes' );
+		// 3.0
+		remove_action( 'load-update-core.php', 'wp_update_themes' );
+		add_filter( 'pre_transient_update_themes', create_function( '$a', "return null;" ));
 
-        remove_action( 'load-themes.php', 'wp_update_themes' );
-        remove_action( 'load-update.php', 'wp_update_themes' );
-        remove_action( 'admin_init', '_maybe_update_themes' );
-        remove_action( 'wp_update_themes', 'wp_update_themes' );
-        // 3.0
-        remove_action( 'load-update-core.php', 'wp_update_themes' );
-        add_filter( 'pre_transient_update_themes', create_function( '$a', "return null;" ));
+		return TRUE;
+	}
 
-        return TRUE;
-    }
+	static function fix_removeCoreUpdateNotification()
+	{
+		if(current_user_can('administrator')) return TRUE;
 
-    static function fix_removeCoreUpdateNotification()
-    {
-        if(current_user_can('administrator')) return TRUE;
+		add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_notices', 'maintenance_nag' );" ) );
+		add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_notices', 'update_nag', 3 );" ) );
+		add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', '_maybe_update_core' );" ) );
+		add_action( 'init', create_function( '$a', "remove_action( 'init', 'wp_version_check' );" ) );
+		add_filter( 'pre_option_update_core', create_function( '$a', "return null;" ) );
+		remove_action( 'wp_version_check', 'wp_version_check' );
+		remove_action( 'admin_init', '_maybe_update_core' );
+		add_filter( 'pre_transient_update_core', create_function( '$a', "return null;" ) );
+		// 3.0
+		add_filter( 'pre_site_transient_update_core', create_function( '$a', "return null;" ) );
 
-        add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_notices', 'maintenance_nag' );" ) );
-        add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_notices', 'update_nag', 3 );" ) );
-        add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', '_maybe_update_core' );" ) );
-        add_action( 'init', create_function( '$a', "remove_action( 'init', 'wp_version_check' );" ) );
-        add_filter( 'pre_option_update_core', create_function( '$a', "return null;" ) );
-        remove_action( 'wp_version_check', 'wp_version_check' );
-        remove_action( 'admin_init', '_maybe_update_core' );
-        add_filter( 'pre_transient_update_core', create_function( '$a', "return null;" ) );
-        // 3.0
-        add_filter( 'pre_site_transient_update_core', create_function( '$a', "return null;" ) );
+		return TRUE;
+	}
 
-        return TRUE;
-    }
+	static function fix_removePluginUpdateNotifications()
+	{
+		if(current_user_can('administrator')) return TRUE;
 
-    static function fix_removePluginUpdateNotifications()
-    {
-        if(current_user_can('administrator')) return TRUE;
+		add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', 'wp_plugin_update_rows' );" ), 2 );
+		add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', '_maybe_update_plugins' );" ), 2 );
+		add_action( 'admin_menu', create_function( '$a', "remove_action( 'load-plugins.php', 'wp_update_plugins' );" ) );
+		add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', 'wp_update_plugins' );" ), 2 );
+		add_action( 'init', create_function( '$a', "remove_action( 'init', 'wp_update_plugins' );" ), 2 );
+		add_filter( 'pre_option_update_plugins', create_function( '$a', "return null;" ) );
+		remove_action( 'load-plugins.php', 'wp_update_plugins' );
+		remove_action( 'load-update.php', 'wp_update_plugins' );
+		remove_action( 'admin_init', '_maybe_update_plugins' );
+		remove_action( 'wp_update_plugins', 'wp_update_plugins' );
+		// 3.0
+		remove_action( 'load-update-core.php', 'wp_update_plugins' );
+		add_filter( 'pre_transient_update_plugins', create_function( '$a', "return null;" ) );
 
-        add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', 'wp_plugin_update_rows' );" ), 2 );
-        add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', '_maybe_update_plugins' );" ), 2 );
-        add_action( 'admin_menu', create_function( '$a', "remove_action( 'load-plugins.php', 'wp_update_plugins' );" ) );
-        add_action( 'admin_init', create_function( '$a', "remove_action( 'admin_init', 'wp_update_plugins' );" ), 2 );
-        add_action( 'init', create_function( '$a', "remove_action( 'init', 'wp_update_plugins' );" ), 2 );
-        add_filter( 'pre_option_update_plugins', create_function( '$a', "return null;" ) );
-        remove_action( 'load-plugins.php', 'wp_update_plugins' );
-        remove_action( 'load-update.php', 'wp_update_plugins' );
-        remove_action( 'admin_init', '_maybe_update_plugins' );
-        remove_action( 'wp_update_plugins', 'wp_update_plugins' );
-        // 3.0
-        remove_action( 'load-update-core.php', 'wp_update_plugins' );
-        add_filter( 'pre_transient_update_plugins', create_function( '$a', "return null;" ) );
+		return TRUE;
+	}
 
-        return TRUE;
-    }
+	static function fix_removeWindowsLiveWriter()
+	{
+		if(!function_exists('wlwmanifest_link')) return FALSE;
+		if(current_user_can('administrator')) return TRUE;
 
-    static function fix_removeWindowsLiveWriter()
-    {
-        if(!function_exists('wlwmanifest_link')) return FALSE;
-        if(current_user_can('administrator')) return TRUE;
+		remove_action('wp_head', 'wlwmanifest_link');
+		return TRUE;
+	}
 
-        remove_action('wp_head', 'wlwmanifest_link');
-        return TRUE;
-    }
+	static function fix_removeReallySimpleDiscovery()
+	{
+		if(!function_exists('rsd_link')) return FALSE;
+		if(current_user_can('administrator')) return TRUE;
 
-    static function fix_removeReallySimpleDiscovery()
-    {
-        if(!function_exists('rsd_link')) return FALSE;
-        if(current_user_can('administrator')) return TRUE;
+		remove_action('wp_head', 'rsd_link');
+		return TRUE;
+	}
 
-        remove_action('wp_head', 'rsd_link');
-        return TRUE;
-    }
+	static function fix_disableErrorReporting()
+	{
+		if(current_user_can('administrator')) return TRUE;
+		global $wpdb;
+		ini_set('display_errors', '0');
+		ini_set('display_startup_errors', false);
+		error_reporting(0);
+		$wpdb->hide_errors();
+		$wpdb->suppress_errors();
+		return TRUE;
+	}
 
-    static function fix_disableErrorReporting()
-    {
-        if(current_user_can('administrator')) return TRUE;
-        global $wpdb;
-	    ini_set('display_errors', '0');
-	    ini_set('display_startup_errors', false);
-	    error_reporting(0);
-        $wpdb->hide_errors();
-        $wpdb->suppress_errors();
-        return TRUE;
-    }
+	static function fix_removeWpMetaGenerators()
+	{
+		if(current_user_can('administrator')) return TRUE;
+		//@@ remove various meta tags generators from blog's head tag
+		function wsdplugin_filter_generator($gen, $type)
+		{
+			switch ($type)
+			{
+				case 'html':
+					$gen = '<meta name="generator" content="WordPress">';
+					break;
+				case 'xhtml':
+					$gen = '<meta name="generator" content="WordPress" />';
+					break;
+				case 'atom':
+					$gen = '<generator uri="http://wordpress.org/">WordPress</generator>';
+					break;
+				case 'rss2':
+					$gen = '<generator>http://wordpress.org/?v=</generator>';
+					break;
+				case 'rdf':
+					$gen = '<admin:generatorAgent rdf:resource="http://wordpress.org/?v=" />';
+					break;
+				case 'comment':
+					$gen = '<!-- generator="WordPress" -->';
+					break;
+			}
+			return $gen;
+		}
+		foreach (array( 'html', 'xhtml', 'atom', 'rss2', 'rdf', 'comment' ) as $type)
+			add_filter("get_the_generator_".$type, 'wsdplugin_filter_generator', 10, 2);
+	}
 
-    static function fix_removeWpMetaGenerators()
-    {
-        if(current_user_can('administrator')) return TRUE;
-        //@@ remove various meta tags generators from blog's head tag
-        function wsdplugin_filter_generator($gen, $type)
-        {
-            switch ($type)
-            {
-                case 'html':
-                    $gen = '<meta name="generator" content="WordPress">';
-                    break;
-                case 'xhtml':
-                    $gen = '<meta name="generator" content="WordPress" />';
-                    break;
-                case 'atom':
-                    $gen = '<generator uri="http://wordpress.org/">WordPress</generator>';
-                    break;
-                case 'rss2':
-                    $gen = '<generator>http://wordpress.org/?v=</generator>';
-                    break;
-                case 'rdf':
-                    $gen = '<admin:generatorAgent rdf:resource="http://wordpress.org/?v=" />';
-                    break;
-                case 'comment':
-                    $gen = '<!-- generator="WordPress" -->';
-                    break;
-            }
-            return $gen;
-        }
-        foreach (array( 'html', 'xhtml', 'atom', 'rss2', 'rdf', 'comment' ) as $type)
-            add_filter("get_the_generator_".$type, 'wsdplugin_filter_generator', 10, 2);
-    }
+	static function fix_hideWpVersion()
+	{
+		global $wp_version, $wp_db_version, $manifest_version, $tinymce_version;
 
-    static function fix_hideWpVersion()
-    {
-        global $wp_version, $wp_db_version, $manifest_version, $tinymce_version;
+		if(current_user_can('administrator')) return TRUE;
 
-        if(current_user_can('administrator')) return TRUE;
+		// random values
+		$v = intval( rand(0, 9999) );
+		$d = intval( rand(9999, 99999) );
+		$m = intval( rand(99999, 999999) );
+		$t = intval( rand(999999, 9999999) );
 
-        // random values
-        $v = intval( rand(0, 9999) );
-        $d = intval( rand(9999, 99999) );
-        $m = intval( rand(99999, 999999) );
-        $t = intval( rand(999999, 9999999) );
+		if ( function_exists('the_generator') )
+		{
+			// eliminate version for wordpress >= 2.4
+			remove_filter( 'wp_head', 'wp_generator' );
+			$actions = array( 'rss2_head', 'commentsrss2_head', 'rss_head', 'rdf_header', 'atom_head', 'comments_atom_head', 'opml_head', 'app_head' );
+			foreach ( $actions as $action ) {
+				remove_action( $action, 'the_generator' );
+			}
 
-        if ( function_exists('the_generator') )
-        {
-            // eliminate version for wordpress >= 2.4
-            remove_filter( 'wp_head', 'wp_generator' );
-            $actions = array( 'rss2_head', 'commentsrss2_head', 'rss_head', 'rdf_header', 'atom_head', 'comments_atom_head', 'opml_head', 'app_head' );
-            foreach ( $actions as $action ) {
-                remove_action( $action, 'the_generator' );
-            }
+			// for vars
+			$wp_version = $v;
+			$wp_db_version = $d;
+			$manifest_version = $m;
+			$tinymce_version = $t;
+		}
+		else {
+			// for wordpress < 2.4
+			add_filter( "bloginfo_rss('version')", create_function('$a', "return $v;") );
 
-            // for vars
-            $wp_version = $v;
-            $wp_db_version = $d;
-            $manifest_version = $m;
-            $tinymce_version = $t;
-        }
-        else {
-            // for wordpress < 2.4
-            add_filter( "bloginfo_rss('version')", create_function('$a', "return $v;") );
+			// for rdf and rss v0.92
+			$wp_version = $v;
+			$wp_db_version = $d;
+			$manifest_version = $m;
+			$tinymce_version = $t;
+		}
+	}
 
-            // for rdf and rss v0.92
-            $wp_version = $v;
-            $wp_db_version = $d;
-            $manifest_version = $m;
-            $tinymce_version = $t;
-        }
-    }
+	public static function run_fixes()
+	{
+		$result = array();
+		$methods = get_class_methods('wsdplugin_security');
+		foreach($methods as $method)
+		{
+			$m = explode('_', $method);
+			if((count($m) == 2) && ($m[0] === 'fix'))
+			{
+				try
+				{
+					$result[$m[1]] = call_user_func('wsdplugin_security::'.$method);
+				}
+				catch(Exception $e)
+				{
+					$result[$m[1]] = NULL;
+				}
+			}
+		}
+		self::$fixes = $result;
+	}
 
-    public static function run_fixes()
-    {
-        $result = array();
-        $methods = get_class_methods('wsdplugin_security');
-        foreach($methods as $method)
-        {
-            $m = explode('_', $method);
-            if((count($m) == 2) && ($m[0] === 'fix'))
-            {
-                try
-                {
-                    $result[$m[1]] = call_user_func('wsdplugin_security::'.$method);
-                }
-                catch(Exception $e)
-                {
-                    $result[$m[1]] = NULL;
-//                    var_dump($e);
-                }
-            }
-        }
-        self::$fixes = $result;
-    }
-
-    public static function run_checks()
-    {
-        //We don't have any stacking LGA alerts yet, so there is no reason to save this alerts between sessions
-        static $alerts = array();
-        //$stralerts = wsdplugin_Handler::get_option('WSD-ALERTS', FALSE);
-        //self::$alerts = ($stralerts === FALSE) ? array() : unserialize($stralerts);
-
-        $methods = get_class_methods('wsdplugin_security');
-        foreach($methods as $method)
-        {
-            $m = explode('_', $method);
-            if((count($m) == 2) && ($m[0] === 'check'))
-            {
-                try
-                {
-                    call_user_func('wsdplugin_security::'.$method);
-                }
-                catch(Exception $e)
-                {
-                    //var_dump($e);
-                }
-            }
-        }
-        //see above
-        //wsdplugin_Handler::set_option('WSD-ALERTS', serialize(self::$alerts));
-    }
+	public static function run_checks()
+	{
+		$methods = get_class_methods('wsdplugin_security');
+		foreach($methods as $method)
+		{
+			$m = explode('_', $method);
+			if((count($m) == 2) && ($m[0] === 'check'))
+			{
+				try
+				{
+					call_user_func('wsdplugin_security::'.$method);
+				}
+				catch(Exception $e)
+				{
+				}
+			}
+		}
+	}
 }

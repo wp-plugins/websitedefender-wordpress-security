@@ -2,7 +2,7 @@
 Contributors: WebsiteDefender
 Tags: admin, administration, wordpress security, websitedefender, security plugin, wordpress permissions, strong password, protection, security, security scan, security scanner, wordpress database security
 Requires at least: 3.0
-Tested up to: 3.4.2
+Tested up to: 3.5.1
 Stable tag: trunk
 License: GPLv2 or later
 
@@ -44,7 +44,7 @@ For more information on the WebsiteDefender WordPress Security plugin and other 
 
 
 == Requirements ==
-* WordPress version 3.0 and higher (tested up to 3.4.2)
+* WordPress version 3.0 and higher (tested up to 3.5.1)
 * PHP5 (tested with PHP Interpreter >= 5.2.9)
 
 
@@ -84,10 +84,20 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 == Changelog ==
 
+= 1.0.3 =
+* Added the blog page
+* Added the Why Go Pro page
+* Changed the registration page
+* Removed the password tool page
+* Various internal code updates
+
+
+
 = 1.0.2 =
 * Added the Real Time Security Information section
 * Added Backup tab
 * Minor UI fixes
+
 
 = 1.0.1 =
 * False positive alert for WordPress readme fixed
