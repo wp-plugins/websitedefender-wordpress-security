@@ -3,7 +3,7 @@
 	Plugin Name: WebsiteDefender WordPress Security
 	Plugin URI: http://www.websitedefender.com/websitedefender-wordpress-security-plugin/
 	Description: The WebsiteDefender WordPress Security plugin is the ultimate must-have tool when it comes to WordPress security. The plugin is free and monitors your website for security weaknesses that hackers might exploit and tells you how to easily fix them.
-	Version: 1.0.3
+	Version: 1.0.4
 	Author: WebsiteDefender
 	Author URI: http://websitedefender.com/
 	License: GPLv2 or later
@@ -53,7 +53,7 @@ TEXT
 		if (isset($_GET['wsdplugin_reset']))
 		{
 			$options = array('WSD-USER', 'WSD-HASH', 'WSD-KEY', 'WSD-ID', 'WSD-NAME', 'WSD-SCANTYPE', 'WSD-SURNAME',
-							 'WSD-WORKING', 'WSD-AGENT-DATA', 'WSD-AGENT-NAME', 'WSD-EXPIRATION', 'WSD-SRVCAP', 'WSD-SRVCAP-SENT');
+							 'WSD-WORKING', 'WSD-AGENT-DATA', 'WSD-AGENT-NAME', 'WSD-EXPIRATION', 'WSD-SRVCAP', 'WSD-SRVCAP-SENT', 'WSD-FEED-DATA');
 
 			foreach ($options as $option) {
 				delete_option($option);

@@ -84,13 +84,16 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 == Changelog ==
 
+= 1.0.4 =
+* Fixed images paths
+
+
 = 1.0.3 =
 * Added the blog page
 * Added the Why Go Pro page
 * Changed the registration page
 * Removed the password tool page
 * Various internal code updates
-
 
 
 = 1.0.2 =
