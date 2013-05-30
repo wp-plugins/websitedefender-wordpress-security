@@ -1,10 +1,13 @@
+<?php if (!defined('WP_UNINSTALL_PLUGIN')) {exit;} ?>
 <?php
-if (!defined( 'ABSPATH') && !defined('WP_UNINSTALL_PLUGIN'))
-	exit;
+/*
+ * Uninstall plug-in
+ *
+ * @package ACX
+ * @since v0.1
+ */
 
-$options = array('WSD-USER', 'WSD-HASH', 'WSD-KEY', 'WSD-ID', 'WSD-NAME', 'WSD-SCANTYPE', 'WSD-SURNAME',
-	'WSD-WORKING', 'WSD-AGENT-DATA', 'WSD-AGENT-NAME', 'WSD-EXPIRATION', 'WSD-SRVCAP', 'WSD-SRVCAP-SENT', 'WSD-FEED-DATA');
-
-foreach ($options as $option) {
-	delete_option($option);
-}
+/*
+ * Delete stored options from the options table
+ */
+delete_option('wsd_feed_data');
