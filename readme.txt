@@ -79,6 +79,9 @@ For more information on the WebsiteDefender WordPress Security plug-in and other
 
 == Changelog ==
 
+= 1.0.6 =
+* Fixed the broken pages
+
 = 1.0.5 =
 * Removed the registration requirement
 * Alert page removed following cancellation of pro features
